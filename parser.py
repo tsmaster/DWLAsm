@@ -100,7 +100,7 @@ def parse_args(line):
 
     try:
         comment_idx = line.index(';')
-        line = line[:comment_idx]
+        line = line[:comment_idx].strip()
     except ValueError:
         pass
 
@@ -111,7 +111,7 @@ def parse_args(line):
     else:
         return None
 
-    return line.split()
+    return line
 
 def parse_addr(line):
     if line[0] == '#':
@@ -136,6 +136,21 @@ def parse_addr(line):
             return AbsoluteAddr(v)
     else:
         return None
+
+def parse_string(line):
+    list_of_quote_indices = find_occurrances_of_char('"', line)
+    assert(len(list_of_quote_indices) == 2)
+
+    first = list_of_quote_indices[0]
+    last = list_of_quote_indices[1]
+    return line[first+1:last]
+
+def find_occurrances_of_char(c, line):
+    out_list = []
+    for i in range(len(line)):
+        if line[i] == c:
+            out_list.append(i)
+    return out_list
 
 class AbsoluteAddr:
     def __init__(self, v):
@@ -210,15 +225,25 @@ class Assembler():
         self.lines = []
         self.byte_list = [0, 0, 0, 0]
         self.filename = None
+        self.definitions = {}
+        self.forward_refs = []
 
-    def do_pseudo_opcode(self, op, args):
-        if op == 'ORG':
+    def do_pseudo_opcode(self, label, op, arg):
+        if op == '.ORG':
             assert(self.start_addr == 0)
-            self.next_addr = args.addr
-            self.start_addr = args.addr
+            self.next_addr = arg.addr
+            self.start_addr = arg.addr
             return True
 
-        # TODO filename
+        elif op == '.EQU':
+            assert(not(label is None))
+            self.definitions[label] = arg
+            return True
+
+        elif op == '.OUT':
+            assert(not(arg is None))
+            self.filename = arg
+            return True
 
         return False
 
@@ -262,24 +287,30 @@ if __name__ == "__main__":
             print("parsed tokens:", toks)
 
             if toks:
-                label, op, args = toks
+                label, op, arg = toks
 
-                if asm.do_pseudo_opcode(op, args):
+                if asm.do_pseudo_opcode(label, op, arg):
                     continue
 
-                inst_data = opcodes.lookup(op, args)
+                if arg in asm.definitions:
+                    arg = asm.definitions[arg]
+                
+                print("looking up op {} args {}".format(op, arg))
+                inst_data = opcodes.lookup(op, arg)
 
                 inst_str = ""
                 if inst_data:
                     inst_str += hex(inst_data)[2:] + " "
 
                     byte_list = [inst_data]
-                    if args:
-                        for a in args.bytes():
+                    if arg:
+                        for a in arg.bytes():
                             inst_str += hex(a)[2:] + " "
                             byte_list.append(a)
                     
                     print("INST:", inst_str)
+                    if label:
+                        asm.store_label(label)
                     asm.add_bytes(byte_list, inst_str)
                 else:
                     print("NO INST")
@@ -289,4 +320,4 @@ if __name__ == "__main__":
 
     
     asm.print_listing()
-    asm.save_obj("test.obj")
+    asm.save_obj()

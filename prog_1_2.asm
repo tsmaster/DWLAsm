@@ -1,7 +1,8 @@
         ;; Program 1.2
         ;; display white HGR page
 
-        ORG $300
+        .ORG $300
+        .OUT "prog_1_2.obj"
 
         LDA #$20                ; A9 20
         STA $E6                 ; 85 e6
