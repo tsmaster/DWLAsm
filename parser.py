@@ -3,139 +3,11 @@
 #from pypeg2 import *
 
 import sys
+import re
 
 import opcodes
 from addrmode import AddrMode
 
-def parse_line(line):
-    if ((not line) or
-        (len(line) == 0)):
-        return None
-    
-    if line[0] == ';':
-        # full line comment
-        return None
-
-    while ((len(line) > 0) and
-           ((line[-1] == '\n') or
-            (line[-1] == '\r'))):
-        line = line[:-1]
-
-    if line.strip() == '':
-        # empty line
-        return None
-
-    print("line:", line)
-
-    label = None
-    
-    if not line[0].isspace():
-        # must be a label
-        try:
-            colon_pos = line.index(':')
-        except ValueError as ve:
-            print("bad label:", line)
-            raise ve
-
-        label = line[:colon_pos]
-        #print("got label", label)
-        line = line[colon_pos+1:]
-
-    # consume whitespace padding
-
-    while line and line[0].isspace():
-        line = line[1:]
-
-    if line[0] == ';':
-        # comment
-        if label:
-            print("can't have a label on a comment line")
-            raise ValueError()
-        else:
-            return None
-
-    #print ("line starting with opcode:", line)
-
-    # should have an opcode at this point
-
-    op_and_args = parse_op_and_args(line)
-
-    if not op_and_args:
-        raise ValueError()
-    else:
-        #print("op and args:", op_and_args)
-        return label, op_and_args[0], op_and_args[1]
-
-
-def parse_op_and_args(line):
-    assert(len(line) > 0)
-    delimiter_idx = -1
-    
-    for i in range(len(line)):
-        if line[i].isspace():
-            delimiter_idx = i
-            break
-
-    if delimiter_idx == -1:
-        #print("no delimiter found in", line)
-        return line, None
-
-    op = line[:delimiter_idx]
-    args = parse_args(line[delimiter_idx:])
-    #print("found args:", args)
-    return op, args
-
-def parse_args(line):
-    #print("parsing args for line", line)
-    while (len(line)> 0 and
-           line[0].isspace()):
-        line = line[1:]
-
-    if not line:
-        #print("no line")
-        return None
-
-    if line[0] == '"':
-        return parse_string(line)
-
-    try:
-        comment_idx = line.index(';')
-        line = line[:comment_idx].strip()
-    except ValueError:
-        pass
-
-    if line:
-        addr = parse_addr(line)
-        if addr:
-            return addr
-    else:
-        return None
-
-    return line
-
-def parse_addr(line):
-    if line[0] == '#':
-        # immediate val
-        if line[1] == '$':
-            # hex
-            val_str = line[2:].strip()
-            v = int(val_str, 16)            
-            if len(val_str) <= 2:
-                return ImmediateByteValue(v)
-            else:
-                return ImmediateWordValue(v)
-        else:
-            assert(False)
-    elif line[0] == '$':
-        # addr
-        addr = line[1:].strip()
-        v = int(addr, 16)
-        if len(addr) <= 2:
-            return ZeroPageAddr(v)
-        else:
-            return AbsoluteAddr(v)
-    else:
-        return None
 
 def parse_string(line):
     list_of_quote_indices = find_occurrances_of_char('"', line)
@@ -168,6 +40,22 @@ class AbsoluteAddr:
         # lo, hi
         return self.addr % 256, self.addr >> 8
 
+class RelativeAddr:
+    def __init__(self, v):
+        self.rel_addr = v
+        self.mode = AddrMode.REL
+
+    def __str__(self):
+        s = hex(self.rel_addr)[2:]
+        return '$'+s
+
+    def __repr__(self):
+        return str(self)
+
+    def bytes(self):
+        assert (self.rel_addr < 256)
+        return (self.rel_addr,)
+
 class ZeroPageAddr:
     def __init__(self, v):
         self.addr = v
@@ -183,7 +71,6 @@ class ZeroPageAddr:
     def bytes(self):
         assert (self.addr < 256)
         return (self.addr,)
-
 
 class ImmediateWordValue:
     def __init__(self, v):
@@ -205,7 +92,7 @@ class ImmediateByteValue:
     def __init__(self, v):
         self.addr = v
         self.mode = AddrMode.IMM
-        
+
     def __str__(self):
         s = hex(self.addr)[2:]
         return '#$'+s
@@ -217,6 +104,38 @@ class ImmediateByteValue:
         assert (self.addr < 256)
         return (self.addr,)
 
+class XOffsetAbsoluteValue:
+    def __init__(self, v):
+        self.addr = v
+        self.mode = AddrMode.ABSX
+
+    def __str__(self):
+        s = hex(self.addr)[2:]
+        return '#$'+s+",X"
+
+    def __repr__(self):
+        return str(self)
+
+    def bytes(self):
+        # lo, hi
+        return self.addr % 256, self.addr >> 8
+
+class YOffsetAbsoluteValue:
+    def __init__(self, v):
+        self.addr = v
+        self.mode = AddrMode.ABSY
+
+    def __str__(self):
+        s = hex(self.addr)[2:]
+        return '#$'+s+",Y"
+
+    def __repr__(self):
+        return str(self)
+
+    def bytes(self):
+        # lo, hi
+        return self.addr % 256, self.addr >> 8
+    
 
 class Assembler():
     def __init__(self):
@@ -269,9 +188,187 @@ class Assembler():
         ba[1] = self.start_addr >> 8
         ba[2] = proglen % 256
         ba[3] = proglen >> 8
-        
+
         with open(filename, "wb") as f:
             f.write(ba)
+
+    def store_label(self, label):
+        # store the label value in our definitions. Is that OK?
+
+        assert(label)
+
+        assert(not (label in self.definitions))
+
+        self.definitions[label] = AbsoluteAddr(self.next_addr)
+
+
+
+    def parse_addr(self, line):
+        if line in self.definitions:
+            return self.definitions[line]
+        
+        # ghetto parsing by doing one regexp at a time
+        y_off_pat = r"(\w+),Y"
+    
+        y_off_match = re.match(y_off_pat, line)
+        if y_off_match:
+            print("found y offset")
+    
+            print(" group 1: ", y_off_match.group(1))
+
+            v_parsed = self.parse_addr(y_off_match.group(1))
+
+            print(" parsed: ", v_parsed)
+    
+            return YOffsetAbsoluteValue(v_parsed.addr)
+    
+        x_off_pat = r"(\w+),X"
+    
+        x_off_match = re.match(x_off_pat, line)
+        if x_off_match:
+            print("found x offset")
+    
+            print(" group 1: ", x_off_match.group(1))
+    
+            v_parsed = self.parse_addr(x_off_match.group(1))
+    
+            return XOffsetAbsoluteValue(v_parsed.addr)
+    
+        if line[0] == '#':
+            # immediate val
+            if line[1] == '$':
+                # hex
+                val_str = line[2:].strip()
+                v = int(val_str, 16)
+                if len(val_str) <= 2:
+                    return ImmediateByteValue(v)
+                else:
+                    return ImmediateWordValue(v)
+            else:
+                assert(False)
+        elif line[0] == '$':
+            # addr
+            addr = line[1:].strip()
+            v = int(addr, 16)
+            if len(addr) <= 2:
+                return ZeroPageAddr(v)
+            else:
+                return AbsoluteAddr(v)
+        else:
+            return None
+
+
+
+    def parse_args(self, line):
+        #print("parsing args for line", line)
+        while (len(line)> 0 and
+               line[0].isspace()):
+            line = line[1:]
+    
+        if not line:
+            #print("no line")
+            return None
+    
+        if line[0] == '"':
+            return parse_string(line)
+    
+        try:
+            comment_idx = line.index(';')
+            line = line[:comment_idx].strip()
+        except ValueError:
+            pass
+    
+        if line:
+            addr = self.parse_addr(line)
+            if addr:
+                return addr
+        else:
+            return None
+    
+        return line
+
+
+    def parse_op_and_args(self, line):
+        assert(len(line) > 0)
+        delimiter_idx = -1
+    
+        for i in range(len(line)):
+            if line[i].isspace():
+                delimiter_idx = i
+                break
+    
+        if delimiter_idx == -1:
+            #print("no delimiter found in", line)
+            return line, None
+    
+        op = line[:delimiter_idx]
+        args = self.parse_args(line[delimiter_idx:])
+        #print("found args:", args)
+        return op, args
+
+
+    def parse_line(self, line):
+        if ((not line) or
+            (len(line) == 0)):
+            return None
+    
+        if line[0] == ';':
+            # full line comment
+            return None
+    
+        while ((len(line) > 0) and
+               ((line[-1] == '\n') or
+                (line[-1] == '\r'))):
+            line = line[:-1]
+    
+        if line.strip() == '':
+            # empty line
+            return None
+    
+        print("line:", line)
+    
+        label = None
+    
+        if not line[0].isspace():
+            # must be a label
+            try:
+                colon_pos = line.index(':')
+            except ValueError as ve:
+                print("bad label:", line)
+                raise ve
+    
+            label = line[:colon_pos]
+            #print("got label", label)
+            line = line[colon_pos+1:]
+    
+        # consume whitespace padding
+    
+        while line and line[0].isspace():
+            line = line[1:]
+    
+        if line[0] == ';':
+            # comment
+            if label:
+                print("can't have a label on a comment line")
+                raise ValueError()
+            else:
+                return None
+    
+        #print ("line starting with opcode:", line)
+    
+        # should have an opcode at this point
+    
+        op_and_args = self.parse_op_and_args(line)
+    
+        if not op_and_args:
+            raise ValueError()
+        else:
+            #print("op and args:", op_and_args)
+            return label, op_and_args[0], op_and_args[1]
+
+    
+    
+        
 
 if __name__ == "__main__":
     assert(len(sys.argv) == 2)
@@ -279,11 +376,11 @@ if __name__ == "__main__":
     filename = sys.argv[1]
 
     asm = Assembler()
-    
-    
+
+
     with open(filename) as t:
         for line in t.readlines():
-            toks = parse_line(line)
+            toks = asm.parse_line(line)
             print("parsed tokens:", toks)
 
             if toks:
@@ -294,7 +391,7 @@ if __name__ == "__main__":
 
                 if arg in asm.definitions:
                     arg = asm.definitions[arg]
-                
+
                 print("looking up op {} args {}".format(op, arg))
                 inst_data = opcodes.lookup(op, arg)
 
@@ -307,17 +404,44 @@ if __name__ == "__main__":
                         for a in arg.bytes():
                             inst_str += hex(a)[2:] + " "
                             byte_list.append(a)
-                    
+
                     print("INST:", inst_str)
                     if label:
                         asm.store_label(label)
                     asm.add_bytes(byte_list, inst_str)
+                elif arg.mode == AddrMode.ABS:
+                    cur_addr = asm.next_addr + 2
+                    dest_addr = arg.addr
+                    delta = dest_addr - cur_addr
+                    if ((delta >= -128) and
+                        (delta < 128)):
+                        if delta < 0:
+                            delta += 256
+                        rel_arg = RelativeAddr(delta)
+                        print("looking up op {} rel arg {}".format(op, rel_arg))
+                        inst_data = opcodes.lookup(op, rel_arg)
+
+                        if inst_data:
+                            inst_str += hex(inst_data)[2:] + " "
+
+                            byte_list = [inst_data]
+                            if rel_arg:
+                                for a in rel_arg.bytes():
+                                    inst_str += hex(a)[2:] + " "
+                                    byte_list.append(a)
+                            print("RINST:", inst_str)
+                            if label:
+                                asm.store_label(label)
+                            asm.add_bytes(byte_list, inst_str)
+                    else:
+                        print("TOO FAR FOR REL")
+                    
                 else:
                     print("NO INST")
 
                 if not op in opcodes.opcode_list:
                     print("unrecognized opcode: ", op)
 
-    
+
     asm.print_listing()
     asm.save_obj()

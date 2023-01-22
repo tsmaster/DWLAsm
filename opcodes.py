@@ -157,7 +157,11 @@ add_opcode('1E', 'ASL', AddrMode.ABSX, 2)
 
 add_opcode('D0', 'BNE', AddrMode.REL, 1)
 
-# BPL..CLV
+add_opcode('10', 'BPL', AddrMode.REL, 1)
+
+add_opcode('00', 'BRK', AddrMode.NONE, 0)
+
+# BVC..CLV
 
 add_opcode('C9', 'CMP', AddrMode.IMM, 1)
 add_opcode('C5', 'CMP', AddrMode.ZP,  1)
@@ -193,9 +197,9 @@ add_opcode('F6', 'INC', AddrMode.ZPX, 1)
 add_opcode('EE', 'INC', AddrMode.ABS, 2)
 add_opcode('FE', 'INC', AddrMode.ABSX, 2)
 
-add_opcode('E8', 'INX', AddrMode.XR, 0)
+add_opcode('E8', 'INX', AddrMode.NONE, 0)
 
-add_opcode('C8', 'INY', AddrMode.YR, 0)
+add_opcode('C8', 'INY', AddrMode.NONE, 0)
 
 add_opcode('4C', 'JMP', AddrMode.ABS, 2)
 add_opcode('6C', 'JMP', AddrMode.INDABS, 2)

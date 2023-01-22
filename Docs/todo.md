@@ -20,12 +20,13 @@ be able to branch using relative address
 
 opcodes
 ----------------------------------------
-BCC .. BMI
-BPL .. CLV
-CPX
-CPY
-PHA .. RTI
-SEC .. SEI
+
+ - BCC .. BMI
+ - BVC .. CLV
+ - CPX
+ - CPY
+ - PHA .. RTI
+ - SEC .. SEI
 
 
 workflow / quality of life
