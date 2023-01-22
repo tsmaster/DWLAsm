@@ -34,3 +34,7 @@ script to make blank DSK
 
 script to copy OBJ output into DSK
 
+
+offsets
+----------------------------------------
+Need to support addressing modes like LDA line1,Y STA line2,X
