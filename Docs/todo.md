@@ -11,11 +11,6 @@ options for
  - listing filename
 
 
-labels
-----------------------------------------
-handle forward references (for e.g. Program 2.7)
-
-
 workflow / quality of life
 ----------------------------------------
 script to make blank DSK
