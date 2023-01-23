@@ -153,7 +153,16 @@ add_opcode('16', 'ASL', AddrMode.ZPX, 1)
 add_opcode('0E', 'ASL', AddrMode.ABS, 2)
 add_opcode('1E', 'ASL', AddrMode.ABSX, 2)
 
-# BCC..BMI
+add_opcode('90', 'BCC', AddrMode.REL, 1)
+
+add_opcode('B0', 'BCS', AddrMode.REL, 1)
+
+add_opcode('F0', 'BEQ', AddrMode.REL, 1)
+
+add_opcode('24', 'BIT', AddrMode.ZP, 1)
+add_opcode('2C', 'BIT', AddrMode.ABS, 2)
+
+add_opcode('30', 'BMI', AddrMode.REL, 1)
 
 add_opcode('D0', 'BNE', AddrMode.REL, 1)
 
@@ -161,7 +170,17 @@ add_opcode('10', 'BPL', AddrMode.REL, 1)
 
 add_opcode('00', 'BRK', AddrMode.NONE, 0)
 
-# BVC..CLV
+add_opcode('50', 'BVC', AddrMode.REL, 1)
+
+add_opcode('70', 'BVS', AddrMode.REL, 1)
+
+add_opcode('18', 'CLC', AddrMode.NONE, 0)
+
+add_opcode('D8', 'CLD', AddrMode.NONE, 0)
+
+add_opcode('58', 'CLI', AddrMode.NONE, 0)
+
+add_opcode('B8', 'CLV', AddrMode.NONE, 0)
 
 add_opcode('C9', 'CMP', AddrMode.IMM, 1)
 add_opcode('C5', 'CMP', AddrMode.ZP,  1)
@@ -172,7 +191,13 @@ add_opcode('D9', 'CMP', AddrMode.ABSY, 2)
 add_opcode('C1', 'CMP', AddrMode.INDZPX, 1)
 add_opcode('D1', 'CMP', AddrMode.INDZPY, 1)
 
-# CPX, CPY
+add_opcode('E0', 'CPX', AddrMode.IMM, 1)
+add_opcode('E4', 'CPX', AddrMode.ZP, 1)
+add_opcode('EC', 'CPX', AddrMode.ABS, 2)
+
+add_opcode('C0', 'CPY', AddrMode.IMM, 1)
+add_opcode('C4', 'CPY', AddrMode.ZP, 1)
+add_opcode('CC', 'CPY', AddrMode.ABS, 2)
 
 add_opcode('C6', 'DEC', AddrMode.ZP, 1)
 add_opcode('D6', 'DEC', AddrMode.ZPX, 1)
@@ -244,7 +269,27 @@ add_opcode('19', 'ORA', AddrMode.ABSY, 2)
 add_opcode('01', 'ORA', AddrMode.INDZPX, 1)
 add_opcode('11', 'ORA', AddrMode.INDZPY, 1)
 
-# PHA..RTI
+add_opcode('48', 'PHA', AddrMode.NONE, 0)
+
+add_opcode('08', 'PHP', AddrMode.NONE, 0)
+
+add_opcode('68', 'PLA', AddrMode.NONE, 0)
+
+add_opcode('28', 'PLP', AddrMode.NONE, 0)
+
+add_opcode('2A', 'ROL', AddrMode.ACC, 0)
+add_opcode('26', 'ROL', AddrMode.ZP, 1)
+add_opcode('36', 'ROL', AddrMode.ZPX, 1)
+add_opcode('2E', 'ROL', AddrMode.ABS, 2)
+add_opcode('3E', 'ROL', AddrMode.ABSX, 2)
+
+add_opcode('6A', 'ROR', AddrMode.ACC, 0)
+add_opcode('66', 'ROR', AddrMode.ZP, 1)
+add_opcode('76', 'ROR', AddrMode.ZPX, 1)
+add_opcode('6E', 'ROR', AddrMode.ABS, 2)
+add_opcode('7E', 'ROR', AddrMode.ABSX, 2)
+
+add_opcode('40', 'RTI', AddrMode.NONE, 0)
 
 add_opcode('60', 'RTS', AddrMode.NONE, 0)
 
@@ -257,7 +302,11 @@ add_opcode('F9', 'SBC', AddrMode.ABSY, 2)
 add_opcode('E1', 'SBC', AddrMode.INDZPX, 1)
 add_opcode('F1', 'SBC', AddrMode.INDZPY, 1)
 
-# SEC..SEI
+add_opcode('38', 'SEC', AddrMode.NONE, 0)
+
+add_opcode('F8', 'SED', AddrMode.NONE, 0)
+
+add_opcode('78', 'SEI', AddrMode.NONE, 0)
 
 add_opcode('85', 'STA', AddrMode.ZP, 1)
 add_opcode('95', 'STA', AddrMode.ZPX, 1)

@@ -18,16 +18,6 @@ handle forward references
 be able to branch using relative address
 
 
-opcodes
-----------------------------------------
-
- - BCC .. BMI
- - BVC .. CLV
- - CPX
- - CPY
- - PHA .. RTI
- - SEC .. SEI
-
 
 workflow / quality of life
 ----------------------------------------
@@ -38,4 +28,4 @@ script to copy OBJ output into DSK
 
 offsets
 ----------------------------------------
-Need to support addressing modes like LDA line1,Y STA line2,X
+Verify all the various addressing modes, like that weird (foo,X) mode
