@@ -447,7 +447,7 @@ class Assembler():
                     print("looking up op {} rel arg {}".format(op, rel_arg))
                     inst_data = opcodes.lookup(op, rel_arg)
 
-                    if inst_data:
+                    if not (inst_data is None):
                         inst_str += hex(inst_data)[2:] + " "
 
                         byte_list = [inst_data]
@@ -500,7 +500,8 @@ if __name__ == "__main__":
                 if type(arg) == type("string"):
                     print("UNDEFINED LABEL FOR", op)
                     jumps = ['JMP' , 'JSR']
-                    branches = ['BEQ', 'BNE']
+                    branches = ['BEQ', 'BNE', 'BCC', 'BCS',
+                                'BMI', 'BPL', 'BVC', 'BVS']
 
                     if op in jumps:
                         placeholder_arg = AbsoluteAddr(0)
@@ -515,11 +516,11 @@ if __name__ == "__main__":
                     asm.add_forward_ref(arg, line)
                     arg = placeholder_arg
 
-                print("looking up op {} args {}".format(op, arg))
+                print("looking up op {} arg {}".format(op, arg))
                 inst_data = opcodes.lookup(op, arg)
 
                 inst_str = ""
-                if inst_data:
+                if not (inst_data is None):
                     inst_str += hex(inst_data)[2:] + " "
 
                     byte_list = [inst_data]
