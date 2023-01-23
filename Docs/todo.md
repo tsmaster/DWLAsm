@@ -13,10 +13,7 @@ options for
 
 labels
 ----------------------------------------
-handle forward references
-
-be able to branch using relative address
-
+handle forward references (for e.g. Program 2.7)
 
 
 workflow / quality of life
