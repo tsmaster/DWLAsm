@@ -22,6 +22,8 @@ magazines, through other sources (what other sources were there back
 then?), I came to understand that Assembly Language was how the pros
 wrote cool software. I intended to learn Assembly Language somehow.
 
+![image](https://user-images.githubusercontent.com/72338/213951605-b34f5516-0e68-491f-aef2-b2401578d7f8.png)
+
 Some time in the early 80s, my family and I took a road trip to visit
 the Pacific Science Center in Seattle (a day trip, took a few hours
 each way). The gift shop had a wide variety of what, today, I'd call
@@ -152,6 +154,9 @@ correctly now, the assembly version ran around three times as fast,
 the code was maybe three times as many lines, and it took me about ten
 times as long to get the assembly version working, compared to the
 version coded in BASIC.
+
+![image](https://user-images.githubusercontent.com/72338/213951521-09ee72b5-2197-4313-9148-ed47c725e024.png)
+
 
 I had proven that I had learned the lessons, I was an Apple II
 assembly language programmer, even though the Apple II was decades out
