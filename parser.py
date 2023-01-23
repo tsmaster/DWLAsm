@@ -40,6 +40,23 @@ class AbsoluteAddr:
         # lo, hi
         return self.addr % 256, self.addr >> 8
 
+class IndirectAddr:
+    def __init__(self, v):
+        self.addr = v
+        self.mode = AddrMode.INDABS
+        
+    def __str__(self):
+        s = hex(self.addr)[2:]
+        return '($'+s+')'
+
+    def __repr__(self):
+        return str(self)
+
+    def bytes(self):
+        # lo, hi
+        return self.addr % 256, self.addr >> 8
+
+
 class RelativeAddr:
     def __init__(self, v):
         self.rel_addr = v
@@ -261,6 +278,18 @@ class Assembler():
             v_parsed = self.parse_addr(x_off_match.group(1))
 
             return XOffsetAbsoluteValue(v_parsed.addr)
+
+        ind_pat = r"\((\S+)\)"
+
+        ind_match = re.match(ind_pat, line)
+        print("ind match:", ind_match)
+
+        if ind_match:
+            print("found indirect mode")
+
+            print(" group 1: ", ind_match.group(1))
+            v_parsed = self.parse_addr(ind_match.group(1))
+            return IndirectAddr(v_parsed.addr)
 
         if line[0] == '#':
             # immediate val
