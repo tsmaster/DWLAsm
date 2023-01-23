@@ -569,7 +569,30 @@ class Assembler():
                 print("unrecognized opcode: ", op)
 
 
-
+    def do_inline_math(self, arg):
+        if '+' in arg:
+            terms = arg.split('+')
+            s = 0
+            for t in terms:
+                if t in self.definitions:
+                    d = self.definitions[t]
+                    s += d.addr
+                elif t[0] == '$':
+                    v = int(t[1:], 16)
+                    s += v
+                else:
+                    try:
+                        v = int(t)
+                        s += v
+                    except ValueError:
+                        print("don't know what to do with", t)
+                        assert(False)
+            if s < 256:
+                return ZeroPageAddr(s)
+            else:
+                return AbsoluteAddr(s)
+                        
+                        
 
 
 if __name__ == "__main__":
@@ -595,23 +618,28 @@ if __name__ == "__main__":
                     arg = asm.definitions[arg]
 
                 if type(arg) == type("string"):
-                    print("UNDEFINED LABEL FOR", op)
-                    jumps = ['JMP' , 'JSR']
-                    branches = ['BEQ', 'BNE', 'BCC', 'BCS',
-                                'BMI', 'BPL', 'BVC', 'BVS']
+                    math_res = asm.do_inline_math(arg)
 
-                    if op in jumps:
-                        placeholder_arg = AbsoluteAddr(0)
-                        inst_data = opcodes.lookup(op, placeholder_arg)
-                    elif op in branches:
-                        placeholder_arg = RelativeAddr(0)
-                        inst_data = opcodes.lookup(op, placeholder_arg)
-                    else:
-                        print("unexpected opcode", op)
-                        assert(False)
+                    if math_res:
+                        arg = math_res
+                    else:                    
+                        print("UNDEFINED LABEL FOR", op)
+                        jumps = ['JMP' , 'JSR']
+                        branches = ['BEQ', 'BNE', 'BCC', 'BCS',
+                                    'BMI', 'BPL', 'BVC', 'BVS']
+    
+                        if op in jumps:
+                            placeholder_arg = AbsoluteAddr(0)
+                            inst_data = opcodes.lookup(op, placeholder_arg)
+                        elif op in branches:
+                            placeholder_arg = RelativeAddr(0)
+                            inst_data = opcodes.lookup(op, placeholder_arg)
+                        else:
+                            print("unexpected opcode", op)
+                            assert(False)
 
-                    asm.add_forward_ref(arg, line)
-                    arg = placeholder_arg
+                        asm.add_forward_ref(arg, line)
+                        arg = placeholder_arg
 
                 print("looking up op {} arg {}".format(op, arg))
                 inst_data = opcodes.lookup(op, arg)
