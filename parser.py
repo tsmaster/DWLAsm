@@ -137,6 +137,40 @@ class XOffsetAbsoluteValue:
         # lo, hi
         return self.addr % 256, self.addr >> 8
 
+class XOffsetZeroPageAddr:
+    def __init__(self, v):
+        self.addr = v
+        self.mode = AddrMode.ZPX
+
+    def __str__(self):
+        s = hex(self.addr)[2:]
+        return '$'+s+",X"
+
+    def __repr__(self):
+        return str(self)
+
+    def bytes(self):
+        assert(self.addr < 256)
+        return (self.addr,)
+
+class XOffsetIndirectZeroPageAddr:
+    def __init__(self, v):
+        self.addr = v
+        self.mode = AddrMode.INDZPX
+
+    def __str__(self):
+        s = hex(self.addr)[2:]
+        return '($'+s+",X)"
+
+    def __repr__(self):
+        return str(self)
+
+    def bytes(self):
+        assert(self.addr < 256)
+        return (self.addr,)
+
+    
+
 class YOffsetAbsoluteValue:
     def __init__(self, v):
         self.addr = v
@@ -153,6 +187,22 @@ class YOffsetAbsoluteValue:
         # lo, hi
         return self.addr % 256, self.addr >> 8
 
+class YOffsetIndirectZeroPageAddr:
+    def __init__(self, v):
+        self.addr = v
+        self.mode = AddrMode.INDZPY
+
+    def __str__(self):
+        s = hex(self.addr)[2:]
+        return '($'+s+"),Y"
+
+    def __repr__(self):
+        return str(self)
+
+    def bytes(self):
+        assert(self.addr < 256)
+        return (self.addr,)
+    
 
 class ForwardReference():
     def __init__(self, line, byte_index, label, lines_index):
@@ -253,7 +303,7 @@ class Assembler():
             return self.definitions[line]
 
         # ghetto parsing by doing one regexp at a time
-        y_off_pat = r"(\w+),Y"
+        y_off_pat = r"(\S+),Y"
 
         y_off_match = re.match(y_off_pat, line)
         if y_off_match:
@@ -265,9 +315,24 @@ class Assembler():
 
             print(" parsed: ", v_parsed)
 
-            return YOffsetAbsoluteValue(v_parsed.addr)
+            if v_parsed.addr < 256:
+                return YOffsetIndirectZeroPageAddr(v_parsed.addr)
+            else:
+                return YOffsetAbsoluteValue(v_parsed.addr)
 
-        x_off_pat = r"(\w+),X"
+        x_ind_pat = r"\((\S+),X\)"
+        x_ind_match = re.match(x_ind_pat, line)
+        if x_ind_match:
+            print("found (zero page,x)")
+            print(" group 1:", x_ind_match.group(1))
+            v_parsed = self.parse_addr(x_ind_match.group(1))
+            if v_parsed.addr < 256:
+                return XOffsetIndirectZeroPageAddr(v_parsed.addr)
+            else:
+                print("addr too big")
+                assert(False)
+
+        x_off_pat = r"(\S+),X"
 
         x_off_match = re.match(x_off_pat, line)
         if x_off_match:
@@ -277,7 +342,10 @@ class Assembler():
 
             v_parsed = self.parse_addr(x_off_match.group(1))
 
-            return XOffsetAbsoluteValue(v_parsed.addr)
+            if v_parsed.addr < 256:
+                return XOffsetZeroPageAddr(v_parsed.addr)
+            else:
+                return XOffsetAbsoluteValue(v_parsed.addr)
 
         ind_pat = r"\((\S+)\)"
 
