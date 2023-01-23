@@ -1,5 +1,5 @@
 ;;  Chapter 2 Program 2.8
-;;  tone subroutine BROKEN B/C FORWARD REFERENCE
+;;  tone subroutine
 
             .ORG $300
             .OUT "prog_2_8.obj"

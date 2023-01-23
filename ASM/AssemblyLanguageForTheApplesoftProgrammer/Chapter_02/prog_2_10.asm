@@ -1,5 +1,5 @@
 ;;  Chapter 2 Program 2.10
-;;  paddle tone BROKEN DOES NOT BUILD B/C FORWARD REFERENCES
+;;  paddle tone
 
             .ORG $300
             .OUT "prog_2_10.obj"

@@ -1,5 +1,5 @@
 ;;  Chapter 2 Program 2.7
-;;  intermediate / not audible DOES NOT YET BUILD BECAUSE OF FORWARD REFERENCE
+;;  intermediate / not audible
 
             .ORG $300
             .OUT "prog_2_7.obj"
