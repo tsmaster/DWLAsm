@@ -7,7 +7,7 @@ command-line arguments
 probaby use argparse
 
 options for
- - out filename (overwrites .OUT value)
+ - out filename (overwrites .OUT value, if any)
  - listing filename
 
 
