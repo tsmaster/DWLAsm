@@ -1,0 +1,1 @@
+Pg 146 - POWER should be (MFAC) <- (SFAC)^(MFAC)

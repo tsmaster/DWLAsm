@@ -1,0 +1,37 @@
+[Y,A] means Y is the high byte, A is the low byte of the floating point number
+
+
+ADD     $E7C1   (MFAC) <- (SFAC) + (MFAC)
+        MFAC and SFAC already loaded, do the addition
+
+LADD    $E7BE   (MFAC) <- [Y,A] + (MFAC)
+        MFAC is already loaded; (Y,A) points to the memory location of
+        the packed number to be added to (MFAC)
+
+SUB     $E7AA   (MFAC) <- (SFAC) - (MFAC)
+        MFAC and SFAC already loaded, do the subtraction
+
+LSUB    $E7A7   (MFAC) <- [Y,A] - (MFAC)
+        MFAC is already loaded; (Y,A) points to the memory location of
+        the packed number to have (MFAC) subtracted from it
+
+MULT    $E982   (MFAC) <- (SFAC) * (MFAC)
+        MFAC and SFAC already loaded, do the multiplication
+
+LMULT   $E97F   (MFAC) <- [Y,A] * (MFAC)
+        MFAC is already loaded; (Y,A) points to the memory location of
+        the packed number to be multiplied by (MFAC)
+
+DIV     $EA69   (MFAC) <- (SFAC) / (MFAC)
+        MFAC and SFAC already loaded, do the division
+
+LDIV    $EA66   (MFAC) <- [Y,A] / (MFAC)
+        MFAC is already loaded; (Y,A) points to the memory location of
+        the packed number to be divided by (MFAC)
+
+POWER   $EE97   (MFAC) <- (SFAC)^(MFAC) 
+
+
+
+
+
