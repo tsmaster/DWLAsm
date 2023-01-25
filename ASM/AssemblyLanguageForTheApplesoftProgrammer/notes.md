@@ -28,4 +28,8 @@ Note that the generated BPL offset is now 0xF6 instead of 0xF7 as
 printed in the book.
 
 
+### Chapter 8, Page 146
 
+The line describing POWER should indicate that the action taken is
+
+(MFAC) <- (SFAC) ^ (MFAC)
