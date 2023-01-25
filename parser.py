@@ -214,7 +214,7 @@ class ForwardReference():
 class Assembler():
     def __init__(self):
         self.start_addr = 0
-        self.next_addr = 0
+        self.next_addr = int('0x300', 16)
         self.lines = []
         self.byte_list = [0, 0, 0, 0]
         self.filename = None
@@ -223,15 +223,31 @@ class Assembler():
                                # value is a list of ForwardReference objects
 
     def do_pseudo_opcode(self, label, op, arg):
+        #print("trying pseudo opcode", label, op, arg)
         if op == '.ORG':
             assert(self.start_addr == 0)
-            self.next_addr = arg.addr
-            self.start_addr = arg.addr
+
+            addr = self.parse_addr(arg)
+
+            assert(not (addr is None))
+
+            addr_loc, addr_fr_sym = addr
+
+            assert(addr_fr_sym is None)
+            assert(not (addr_loc is None))
+            
+            self.next_addr = addr_loc.addr
+            self.start_addr = addr_loc.addr
             return True
 
         elif op == '.EQU':
             assert(not(label is None))
-            self.definitions[label] = arg
+            addr_tup = self.parse_addr(arg)
+            assert(not addr_tup is None)
+            addr_addr, addr_fr_sym = addr_tup
+            
+            self.definitions[label] = addr_addr
+
             return True
 
         elif op == '.OUT':
@@ -258,7 +274,29 @@ class Assembler():
             self.add_bytes(byte_list, inst_str)
 
             return True
+
+        elif op == '.HS':
+            # copy arg into memory, hight to low
+            # arg is a big hex number
+            assert (not (arg is None))
+            assert (not (label is None))
+
+            self.store_label(label)
+            byte_list = []
+
+            hex_string = arg
+
+            inst_str = ""
             
+            while hex_string:
+                digit_pair = hex_string[:2]
+                hex_string = hex_string[2:]
+                b = int(digit_pair, 16)
+                byte_list.append(b)
+                inst_str += hex(b) + " "
+
+            self.add_bytes(byte_list, inst_str)
+            return True
             
         return False
 
@@ -291,12 +329,13 @@ class Assembler():
     def store_label(self, label):
         # store the label value in our definitions. Is that OK?
 
-        print("storing label", label)
         assert(label)
 
         assert(not (label in self.definitions))
 
-        self.definitions[label] = AbsoluteAddr(self.next_addr)
+        addr = AbsoluteAddr(self.next_addr)
+        self.definitions[label] = addr
+        print("storing label", label, addr)
 
     def add_forward_ref(self, label, line):
         byte_index = len(self.byte_list)
@@ -326,7 +365,21 @@ class Assembler():
         print("parsing term", term)
         
         if term in self.definitions:
+            print("found term {} in definitions {} type {}".format(term, self.definitions[term], type(self.definitions[term])))
             return (self.definitions[term], None)
+
+        math_res = asm.do_inline_math(term)
+        if (not (math_res is None)):
+            math_addr, math_fr_sym = math_res
+
+            if (not (math_fr_sym is None)):
+                print ("adding forward symbol", math_fr_sym)
+                asm.add_forward_ref(math_fr_sym, line)
+            if (not (math_addr is None)):
+                return (math_addr, None)
+            else:
+                print ("math got confused:", line)
+                assert(False)
 
         # ghetto parsing by doing one regexp at a time
         y_off_pat = r"(\S+),Y"
@@ -453,6 +506,65 @@ class Assembler():
         else:
             return (None, None)
 
+    def tokenize_op(self, line):
+        # return a pair (op, arg)
+        # where op is a string representing the op or None
+        # arg is an untokenized string, with no leading whitespace
+        # can return None in case of empty line
+
+        if not line:
+            return None
+
+        if line.strip() == '':
+            return None
+
+        delimiter_idx = -1
+
+        for i in range(len(line)):
+            if line[i].isspace():
+                op = line[:i]
+                return (op, line[i:].strip())
+
+        # no delimiter, just return the op, no arg
+        return (line, None)
+
+    def trim_arg(self, arg):
+        # input:
+        #  arg might be None
+        #  arg might have a comment
+        #  arg might be a quoted string
+        # output:
+        #  None for an empty string
+        #  comments removed
+        #  leading and trailing whitespace removed
+
+        if not arg:
+            return None
+
+        if arg.strip() == '':
+            return None
+
+        while arg and arg[0].isspace():
+            arg = arg[1:]
+
+        if arg[0] == ';':
+            # all that remains is comment
+            return None
+
+        if arg[0] == '"':
+            list_of_quote_indices = find_occurrances_of_char('"', arg)
+            assert(len(list_of_quote_indices) >= 2)
+
+            # TODO maybe return a wrapped argument type?
+            trimmed_str = arg[1:list_of_quote_indices[1]]
+            return trimmed_str
+
+        if ';' in arg:
+            semi_idx = arg.index(';')
+            arg = arg[:semi_idx]
+
+        return arg.strip()
+        
 
     def parse_op_and_args(self, line):
         assert(len(line) > 0)
@@ -556,7 +668,7 @@ class Assembler():
                 print("CAN'T FIND LABEL {} WHEN FIXING FORWARD REF".format(op))
                 assert(False)
 
-            print("looking up op {} args {}".format(op, arg_addr))
+            print("looking up op {} args {}".format(op, arg_addr, type(arg_addr)))
             inst_data = opcodes.lookup(op, arg_addr)
 
             inst_str = ""
@@ -636,12 +748,90 @@ class Assembler():
                         print("don't know what to do with", t)
                         assert(False)
             if s < 256:
-                return ZeroPageAddr(s)
+                return (ZeroPageAddr(s), None)
             else:
-                return AbsoluteAddr(s)
-                        
-                        
+                return (AbsoluteAddr(s), None)
+        elif arg[0]=='/':
+            # high byte
+            term = arg[1:]
 
+            if term in self.definitions:
+                v = self.definitions[term]
+                return (ImmediateByteValue(v.addr >> 8), None)
+            else:
+                return (ImmediateByteValue(0), term)
+        elif arg[0]=='#':
+            # low byte
+            term = arg[1:]
+
+            if term in self.definitions:
+                v = self.definitions[term]
+                return (ImmediateByteValue(v.addr % 256), None)
+            else:
+                return (ImmediateByteValue(0), term)
+
+        else:
+            return None
+                        
+                        
+    def tokenize_line(self, line):
+        # returns a 3-ple: (label, op, arg)
+        # label is a string or None
+        # op is a string
+        # arg is a string or none
+        #
+        # may return None for e.g. comment line
+
+        if not line:
+            return None
+
+        if line.strip() == '':
+            return None
+
+        if line[0] == ';':
+            # full-line comment, discard
+            return None
+
+        label = None
+
+        if not line[0].isspace():
+            # must be a label
+            try:
+                colon_pos = line.index(':')
+            except ValueError as ve:
+                print("bad label:", line)
+                raise ve
+
+            label = line[:colon_pos]
+            #print("got label", label)
+            line = line[colon_pos+1:]
+
+        # consume whitespace padding
+
+        while line and line[0].isspace():
+            line = line[1:]
+
+        if line[0] == ';':
+            # comment
+            if label:
+                print("can't have a label on a comment line")
+                raise ValueError()
+            else:
+                return None
+
+        print ("line starting with opcode:", line)
+
+        # should have an opcode at this point
+
+        op_and_args = self.tokenize_op(line)
+
+        if not op_and_args:
+            raise ValueError()
+        else:
+            #print("op and args:", op_and_args)
+            return label, op_and_args[0], op_and_args[1]
+
+            
 
 if __name__ == "__main__":
     assert(len(sys.argv) == 2)
@@ -657,6 +847,20 @@ if __name__ == "__main__":
 
     with open(filename) as t:
         for line in t.readlines():
+            tokens = asm.tokenize_line(line)
+
+            print("found tokens",tokens)
+
+            if tokens:
+                label, op, arg = tokens
+
+                arg = asm.trim_arg(arg)
+                
+                if asm.do_pseudo_opcode(label, op, arg):
+                    print("processed pseudo opcode", label, op, arg)
+                    continue
+
+            
             toks = asm.parse_line(line)
             print("parsed tokens:", toks)
 
@@ -664,10 +868,6 @@ if __name__ == "__main__":
                 label, op, arg_tuple = toks
 
                 arg_addr, arg_fr_sym = arg_tuple
-
-                if asm.do_pseudo_opcode(label, op, arg_addr):
-                    print("processed pseudo opcode", label, op, arg_addr)
-                    continue
 
                 if arg_addr in asm.definitions:
                     arg_addr = asm.definitions[arg_addr]
@@ -691,6 +891,7 @@ if __name__ == "__main__":
 
                     arg_addr = placeholder_arg
 
+                """
                 if type(arg_addr) == type("string"):
                     math_res = asm.do_inline_math(arg_addr)
 
@@ -710,6 +911,7 @@ if __name__ == "__main__":
 
                         #asm.add_forward_ref(arg, line)
                         arg_addr = placeholder_arg
+                """
 
                 print("looking up op {} arg {}".format(op, arg_addr))
                 inst_data = opcodes.lookup(op, arg_addr)
