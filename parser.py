@@ -322,6 +322,9 @@ class Assembler():
 
     def parse_addr(self, term):
         """ returns (None, fr_symbol) or (addr, None)"""
+
+        print("parsing term", term)
+        
         if term in self.definitions:
             return (self.definitions[term], None)
 
@@ -611,6 +614,7 @@ class Assembler():
 
             if not op in opcodes.opcode_list:
                 print("unrecognized opcode: ", op)
+                assert(False)
 
 
     def do_inline_math(self, arg):
@@ -661,6 +665,13 @@ if __name__ == "__main__":
 
                 arg_addr, arg_fr_sym = arg_tuple
 
+                if asm.do_pseudo_opcode(label, op, arg_addr):
+                    print("processed pseudo opcode", label, op, arg_addr)
+                    continue
+
+                if arg_addr in asm.definitions:
+                    arg_addr = asm.definitions[arg_addr]
+
                 if not (arg_fr_sym is None):
                     print("adding forward symbol", arg_fr_sym)
                     asm.add_forward_ref(arg_fr_sym, line)
@@ -679,12 +690,6 @@ if __name__ == "__main__":
                         inst_data = opcodes.lookup(op, placeholder_arg)
 
                     arg_addr = placeholder_arg
-
-                if asm.do_pseudo_opcode(label, op, arg_addr):
-                    continue
-
-                if arg_addr in asm.definitions:
-                    arg = asm.definitions[arg_addr]
 
                 if type(arg_addr) == type("string"):
                     math_res = asm.do_inline_math(arg_addr)
