@@ -1,0 +1,8 @@
+$C050  Display graphics
+$C051  Display text
+$C052  Full screen
+$C053  Mixed screen
+$C054  Page 1
+$C055  Page 2
+$C056  Lo-res graphics
+$C057  Hi-res graphics

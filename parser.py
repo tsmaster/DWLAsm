@@ -239,6 +239,27 @@ class Assembler():
             self.filename = arg
             return True
 
+        elif op == '.AS':
+            # copy arg into memory, one byte at a time
+            assert (not (arg is None))
+
+            assert (not (label is None))
+            assert(type(arg) == type("string"))
+
+            self.store_label(label)
+
+            byte_list = []
+
+            inst_str = ""
+            for c in arg:
+                byte_list.append(ord(c))
+                inst_str += hex(ord(c)) + " "
+
+            self.add_bytes(byte_list, inst_str)
+
+            return True
+            
+            
         return False
 
     def add_bytes(self, byte_list, disasm):
@@ -270,6 +291,7 @@ class Assembler():
     def store_label(self, label):
         # store the label value in our definitions. Is that OK?
 
+        print("storing label", label)
         assert(label)
 
         assert(not (label in self.definitions))
@@ -298,89 +320,107 @@ class Assembler():
 
         self.lines[for_ref.lines_index] = (for_ref.byte_index + self.start_addr - 4, inst_str)
 
-    def parse_addr(self, line):
-        if line in self.definitions:
-            return self.definitions[line]
+    def parse_addr(self, term):
+        """ returns (None, fr_symbol) or (addr, None)"""
+        if term in self.definitions:
+            return (self.definitions[term], None)
 
         # ghetto parsing by doing one regexp at a time
         y_off_pat = r"(\S+),Y"
 
-        y_off_match = re.match(y_off_pat, line)
+        y_off_match = re.match(y_off_pat, term)
         if y_off_match:
             print("found y offset")
 
             print(" group 1: ", y_off_match.group(1))
 
-            v_parsed = self.parse_addr(y_off_match.group(1))
+            v_parsed, fr_sym = self.parse_addr(y_off_match.group(1))
 
-            print(" parsed: ", v_parsed)
+            if fr_sym is None:
+                print(" parsed: ", v_parsed)
 
-            if v_parsed.addr < 256:
-                return YOffsetIndirectZeroPageAddr(v_parsed.addr)
+                if v_parsed.addr < 256:
+                    return (YOffsetIndirectZeroPageAddr(v_parsed.addr), None)
+                else:
+                    return (YOffsetAbsoluteValue(v_parsed.addr), None)
             else:
-                return YOffsetAbsoluteValue(v_parsed.addr)
+                return (None, fr_sym)
 
         x_ind_pat = r"\((\S+),X\)"
-        x_ind_match = re.match(x_ind_pat, line)
+        x_ind_match = re.match(x_ind_pat, term)
         if x_ind_match:
             print("found (zero page,x)")
             print(" group 1:", x_ind_match.group(1))
-            v_parsed = self.parse_addr(x_ind_match.group(1))
-            if v_parsed.addr < 256:
-                return XOffsetIndirectZeroPageAddr(v_parsed.addr)
+            v_parsed, fr_sym = self.parse_addr(x_ind_match.group(1))
+
+            if fr_sym is None:
+                if v_parsed.addr < 256:
+                    return (XOffsetIndirectZeroPageAddr(v_parsed.addr), None)
+                else:
+                    print("addr too big")
+                    assert(False)
             else:
-                print("addr too big")
-                assert(False)
+                return (None, fr_sym)
 
         x_off_pat = r"(\S+),X"
 
-        x_off_match = re.match(x_off_pat, line)
+        x_off_match = re.match(x_off_pat, term)
         if x_off_match:
             print("found x offset")
 
             print(" group 1: ", x_off_match.group(1))
 
-            v_parsed = self.parse_addr(x_off_match.group(1))
+            v_parsed, fr_sym = self.parse_addr(x_off_match.group(1))
 
-            if v_parsed.addr < 256:
-                return XOffsetZeroPageAddr(v_parsed.addr)
+            if fr_sym is None:
+                if v_parsed.addr < 256:
+                    return (XOffsetZeroPageAddr(v_parsed.addr), None)
+                else:
+                    return (XOffsetAbsoluteValue(v_parsed.addr), None)
             else:
-                return XOffsetAbsoluteValue(v_parsed.addr)
+                return (None, fr_sym)
+                #print("storing forward ref for line", x_off_match.group(1), line)
+                #self.add_forward_ref(x_off_match.group(1), line)
+                #return XOffsetAbsoluteValue(0)
 
         ind_pat = r"\((\S+)\)"
 
-        ind_match = re.match(ind_pat, line)
+        ind_match = re.match(ind_pat, term)
         print("ind match:", ind_match)
 
         if ind_match:
             print("found indirect mode")
 
             print(" group 1: ", ind_match.group(1))
-            v_parsed = self.parse_addr(ind_match.group(1))
-            return IndirectAddr(v_parsed.addr)
+            v_parsed, fr_sym = self.parse_addr(ind_match.group(1))
+            if fr_sym is None:
+                return (IndirectAddr(v_parsed.addr), None)
+            else:
+                return (None, fr_sym)
 
-        if line[0] == '#':
+        if term[0] == '#':
             # immediate val
-            if line[1] == '$':
+            if term[1] == '$':
                 # hex
-                val_str = line[2:].strip()
+                val_str = term[2:].strip()
                 v = int(val_str, 16)
                 if len(val_str) <= 2:
-                    return ImmediateByteValue(v)
+                    return (ImmediateByteValue(v), None)
                 else:
-                    return ImmediateWordValue(v)
+                    return (ImmediateWordValue(v), None)
             else:
                 assert(False)
-        elif line[0] == '$':
+        elif term[0] == '$':
             # addr
-            addr = line[1:].strip()
+            addr = term[1:].strip()
             v = int(addr, 16)
             if len(addr) <= 2:
-                return ZeroPageAddr(v)
+                return (ZeroPageAddr(v), None)
             else:
-                return AbsoluteAddr(v)
+                return (AbsoluteAddr(v), None)
         else:
-            return None
+            print("can't parse term {}, assume it's a forward ref".format(term))
+            return (None, term)
 
 
 
@@ -392,10 +432,10 @@ class Assembler():
 
         if not line:
             #print("no line")
-            return None
+            return (None, None)
 
         if line[0] == '"':
-            return parse_string(line)
+            return (parse_string(line), None)
 
         try:
             comment_idx = line.index(';')
@@ -408,9 +448,7 @@ class Assembler():
             if addr:
                 return addr
         else:
-            return None
-
-        return line
+            return (None, None)
 
 
     def parse_op_and_args(self, line):
@@ -423,12 +461,12 @@ class Assembler():
                 break
 
         if delimiter_idx == -1:
-            #print("no delimiter found in", line)
-            return line, None
+            print("no delimiter found in", line)
+            return line, (None, None)
 
         op = line[:delimiter_idx]
         args = self.parse_args(line[delimiter_idx:])
-        #print("found args:", args)
+        print("found args:", args)
         return op, args
 
 
@@ -479,7 +517,7 @@ class Assembler():
             else:
                 return None
 
-        #print ("line starting with opcode:", line)
+        print ("line starting with opcode:", line)
 
         # should have an opcode at this point
 
@@ -496,21 +534,27 @@ class Assembler():
         print("parsed tokens:", toks)
 
         if toks:
-            label, op, arg = toks
+            label, op, arg_tuple = toks
 
-            if asm.do_pseudo_opcode(label, op, arg):
+            arg_addr, arg_fr_sym = arg_tuple
+
+            if asm.do_pseudo_opcode(label, op, arg_addr):
                 print("NO PSEUDO OPCODES IN MAKE_BYTES")
                 assert(False)
 
-            if arg in asm.definitions:
-                arg = asm.definitions[arg]
+            if not (arg_fr_sym is None):
+                print("making bytes from forward ref?")
+                assert(False)
 
-            if type(arg) == type("string"):
+            if arg_addr in asm.definitions:
+                arg = asm.definitions[arg_addr]
+
+            if type(arg_addr) == type("string"):
                 print("CAN'T FIND LABEL {} WHEN FIXING FORWARD REF".format(op))
                 assert(False)
 
-            print("looking up op {} args {}".format(op, arg))
-            inst_data = opcodes.lookup(op, arg)
+            print("looking up op {} args {}".format(op, arg_addr))
+            inst_data = opcodes.lookup(op, arg_addr)
 
             inst_str = ""
 
@@ -518,8 +562,8 @@ class Assembler():
                 inst_str += hex(inst_data)[2:] + " "
 
                 byte_list = [inst_data]
-                if arg:
-                    for a in arg.bytes():
+                if arg_addr:
+                    for a in arg_addr.bytes():
                         inst_str += hex(a)[2:] + " "
                         byte_list.append(a)
 
@@ -527,9 +571,9 @@ class Assembler():
 
                 return byte_list, inst_str
 
-            elif arg.mode == AddrMode.ABS:
+            elif arg_addr.mode == AddrMode.ABS:
                 cur_addr = self.start_addr + byte_index - 2
-                dest_addr = arg.addr
+                dest_addr = arg_addr.addr
                 delta = dest_addr - cur_addr
                 print("CALCING REL ADDR")
                 print("CUR:", cur_addr)
@@ -602,6 +646,10 @@ if __name__ == "__main__":
 
     asm = Assembler()
 
+    jumps = ['JMP' , 'JSR']
+    branches = ['BEQ', 'BNE', 'BCC', 'BCS',
+                'BMI', 'BPL', 'BVC', 'BVS']
+    
 
     with open(filename) as t:
         for line in t.readlines():
@@ -609,25 +657,42 @@ if __name__ == "__main__":
             print("parsed tokens:", toks)
 
             if toks:
-                label, op, arg = toks
+                label, op, arg_tuple = toks
 
-                if asm.do_pseudo_opcode(label, op, arg):
+                arg_addr, arg_fr_sym = arg_tuple
+
+                if not (arg_fr_sym is None):
+                    print("adding forward symbol", arg_fr_sym)
+                    asm.add_forward_ref(arg_fr_sym, line)
+                    arg_addr = AbsoluteAddr(0)
+
+                    if op in jumps:
+                        placeholder_arg = AbsoluteAddr(0)
+                        inst_data = opcodes.lookup(op, placeholder_arg)
+                    elif op in branches:
+                        placeholder_arg = RelativeAddr(0)
+                        inst_data = opcodes.lookup(op, placeholder_arg)
+                    else:
+                        # maybe this thing takes two bytes?
+                        print("guessing arg {} is two bytes".format(arg_fr_sym))
+                        placeholder_arg = AbsoluteAddr(0)
+                        inst_data = opcodes.lookup(op, placeholder_arg)
+
+                    arg_addr = placeholder_arg
+
+                if asm.do_pseudo_opcode(label, op, arg_addr):
                     continue
 
-                if arg in asm.definitions:
-                    arg = asm.definitions[arg]
+                if arg_addr in asm.definitions:
+                    arg = asm.definitions[arg_addr]
 
-                if type(arg) == type("string"):
-                    math_res = asm.do_inline_math(arg)
+                if type(arg_addr) == type("string"):
+                    math_res = asm.do_inline_math(arg_addr)
 
                     if math_res:
-                        arg = math_res
+                        arg_addr = math_res
                     else:                    
                         print("UNDEFINED LABEL FOR", op)
-                        jumps = ['JMP' , 'JSR']
-                        branches = ['BEQ', 'BNE', 'BCC', 'BCS',
-                                    'BMI', 'BPL', 'BVC', 'BVS']
-    
                         if op in jumps:
                             placeholder_arg = AbsoluteAddr(0)
                             inst_data = opcodes.lookup(op, placeholder_arg)
@@ -638,19 +703,19 @@ if __name__ == "__main__":
                             print("unexpected opcode", op)
                             assert(False)
 
-                        asm.add_forward_ref(arg, line)
-                        arg = placeholder_arg
+                        #asm.add_forward_ref(arg, line)
+                        arg_addr = placeholder_arg
 
-                print("looking up op {} arg {}".format(op, arg))
-                inst_data = opcodes.lookup(op, arg)
+                print("looking up op {} arg {}".format(op, arg_addr))
+                inst_data = opcodes.lookup(op, arg_addr)
 
                 inst_str = ""
                 if not (inst_data is None):
                     inst_str += hex(inst_data)[2:] + " "
 
                     byte_list = [inst_data]
-                    if arg:
-                        for a in arg.bytes():
+                    if arg_addr:
+                        for a in arg_addr.bytes():
                             inst_str += hex(a)[2:] + " "
                             byte_list.append(a)
 
@@ -658,9 +723,9 @@ if __name__ == "__main__":
                     if label:
                         asm.store_label(label)
                     asm.add_bytes(byte_list, inst_str)
-                elif arg.mode == AddrMode.ABS:
+                elif arg_addr.mode == AddrMode.ABS:
                     cur_addr = asm.next_addr + 2
-                    dest_addr = arg.addr
+                    dest_addr = arg_addr.addr
                     delta = dest_addr - cur_addr
                     if ((delta >= -128) and
                         (delta < 128)):

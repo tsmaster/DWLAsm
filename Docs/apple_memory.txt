@@ -3,15 +3,13 @@
 $0000 - $00FF     Page 0
                   possibly safe:
                     $6-$9
-                    $19
                     $1E
-                    $1F
                     $CE
                     $CF
                     $D7
                     $E3
                     $EB-$EF
-                    $F9-$FF
+                    $F9-$FE
 
 $0100 - $01FF     Page 1: System Stack
 

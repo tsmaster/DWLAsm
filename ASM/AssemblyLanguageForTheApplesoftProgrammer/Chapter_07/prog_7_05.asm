@@ -1,10 +1,4 @@
 ;;; Chapter 7 Program 7.5
-;;; NOT YET WORKING
-;;;   - incorrect branch in line 1180
-;;;   - incorrect branch in line 1230
-;;;   - something weird around 1240
-;;;   - validate output from 0x316 on
-
 
         .ORG $300
         .OUT "prog_7_05.obj"
