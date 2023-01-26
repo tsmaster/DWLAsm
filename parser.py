@@ -9,6 +9,15 @@ import opcodes
 from addrmode import AddrMode
 
 
+def is_numeric_address(term):
+    vals = '$0123456789ABCDEF'
+
+    for c in term:
+        if not (c in vals):
+            return False
+
+    return True
+
 def parse_string(line):
     list_of_quote_indices = find_occurrances_of_char('"', line)
     assert(len(list_of_quote_indices) == 2)
@@ -373,7 +382,7 @@ class Assembler():
             math_addr, math_fr_sym = math_res
 
             if (not (math_fr_sym is None)):
-                print ("adding forward symbol", math_fr_sym)
+                print ("math: adding forward symbol", math_fr_sym)
                 asm.add_forward_ref(math_fr_sym, line)
             if (not (math_addr is None)):
                 return (math_addr, None)
@@ -760,7 +769,7 @@ class Assembler():
                 return (ImmediateByteValue(v.addr >> 8), None)
             else:
                 return (ImmediateByteValue(0), term)
-        elif arg[0]=='#':
+        elif arg[0]=='#' and not is_numeric_address(arg[1:]):
             # low byte
             term = arg[1:]
 

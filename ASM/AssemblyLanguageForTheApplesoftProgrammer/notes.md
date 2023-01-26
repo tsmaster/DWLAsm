@@ -33,3 +33,16 @@ printed in the book.
 The line describing POWER should indicate that the action taken is
 
 (MFAC) <- (SFAC) ^ (MFAC)
+
+
+### Chapter 8, page 165
+
+In program 8.16, "SAVE" is defined to be $06, but in line 1080, the
+generated machine code looks like it was defined to be $4000.
+
+In the following paragraph, it talks about inspecting $06, so maybe
+that's what was intended.
+
+
+
+

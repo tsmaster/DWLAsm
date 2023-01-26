@@ -1,5 +1,6 @@
 [Y,A] means Y is the high byte, A is the low byte of the floating point number
 
+--- Two Argument Functions ---
 
 ADD     $E7C1   (MFAC) <- (SFAC) + (MFAC)
         MFAC and SFAC already loaded, do the addition
@@ -32,6 +33,163 @@ LDIV    $EA66   (MFAC) <- [Y,A] / (MFAC)
 POWER   $EE97   (MFAC) <- (SFAC)^(MFAC) 
 
 
+--- One Argument Functions ---
 
+LOG     $E941   (MFAC) <- LOG(MFAC)
+
+SGNA    $EB82   (A) <- SGN(MFAC)
+
+SGN     $EB90   (MFAC) <- SGN(MFAC)
+
+ABS     $EBAF   (MFAC) <- ABS(MFAC)
+
+INT     $EC23   (MFAC) <- INT(MFAC)
+
+SQR     $EE8D   (MFAC) <- SQR(MFAC)
+
+MMFAC   $EED0   (MFAC) <- -(MFAC)
+
+EXP     $EF09   (MFAC) <- EXP(MFAC)
+
+RND     $EFAE   ($C9-$CD) <- a random number
+
+COS     $EFEA   (MFAC) <- COS(MFAC)
+
+SIN     $EFF1   (MFAC) <- SIN(MFAC)
+
+TAN     $F03A   (MFAC) <- TAN(MFAC)
+
+ATN     $F09E   (MFAC) <- ATN(MFAC)
+
+
+--- Conversion Subroutines ---
+
+CPMIL   $EBF2   (Ext->MFAC) -> ($85, $86)
+        The extension byte is rounded in to MFAC and then MFAC is
+        converted into a 2-byte integer in $85,$86.
+
+CLIM    $DEE9   [$A0,$A1] -> MFAC
+        $A0,$A1 contain the starting address of a two-byte integer
+        that is converted to excess $80 notation in MFAC.
+
+CPMI    $E108   (MFAC) -> ($A0,$A1)
+        MFAC must be positive and less than 32,768; the two-byte
+        integer is formed in $A0,$A1.
+
+CMI     $E10C   (MFAC) -> ($A0,$A1)
+        MFAC must be between -32768 and 32768; the two-byte integer is
+        formed in (A0,A1). If integer is negative, it is in 2's
+        complement notation.
+
+CIAYM   $E2F2   (A,Y) -> (MFAC)
+        The integer in A and Y is converted to excess $80 notation in
+        MFAC.
+
+CIYM    $E301   (Y) -> (MFAC)
+        The integer in Y, not in 2's complement notation, is converted
+        to excess $80 notation in MFAC.
+
+CMIX    $E6FB   (MFAC) -> (X)
+        MFAC is converted to a one-byte integer in X.
+
+CMIL    $E752   (MFAC) -> ($50,$51)
+        MFAC is converted to a two-byte integer in locations $50,$51.
+
+CIAM    $EB93   (A) -> (MFAC)
+        The integer in A is converted to excess $80 notation in MFAC.
+
+CMIE    $EBF2   (MFAC) -> ($9E,$9F,$A0,$A1)
+        MFAC is converted to a four-byte integer in locations $9E
+        through $A1.
+
+
+--- Odds and Ends ---
+
+NOT     $DE98 
+
+OR      $DF4F
+
+AND     $DF55
+
+COMP    $DF6A
+
+MULTI   $E2B6
+
+ADDH    $E7A0
+
+NORM    $E82E
+
+MULTT   $EA39
+
+DIVT    $EA55
+
+ROUND   $EB72
+
+COMPA   $EBB2
+
+
+--- Moves ---
+
+MOVSI
+MOV5S
+MOVMI
+MOV5M
+MOVM98
+MOVM93
+MOVMZ
+MOVM8
+MOVMO
+MOVSM
+MOVMS
+
+
+--- Stack Moves ---
+
+MSTAK
+
+STAKS
+
+
+--- Floating Point Numbers in ROM ---
+
+1/4
+
+1/2
+
+-1/2
+
+SQRT(1/2)
+
+SQRT(2)
+
+1
+
+10
+
+2*pi
+
+pi/2
+
+ln(2)
+
+1 billion
+
+-32768
+
+0.4...
+
+0.57...
+
+0.96...
+
+1.44...
+
+2.88...
+
+-42.78...
+
+2.98...E-8
+
+1.014...E037
 
 
