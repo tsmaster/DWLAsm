@@ -332,7 +332,7 @@ class Assembler():
             return True
 
         elif op == '.DA':
-            # store a byte in memory
+            # store bytes in memory
 
             assert (not (arg is None))
 
@@ -342,13 +342,15 @@ class Assembler():
             byte_list = []
             inst_str = ""
 
-            if arg[0] == '$':
-                v = int(arg[1:], 16)
-            else:
-                v = int(arg)
+            for byte_str in arg.split(','):
+                byte_str = byte_str.strip()
+                if arg[0] == '$':
+                    v = int(byte_str[1:], 16)
+                else:
+                    v = int(byte_str)
 
-            byte_list.append(v)
-            inst_str = hex(v)
+                byte_list.append(v)
+                inst_str += hex(v) + " "
 
             self.add_bytes(byte_list, inst_str)
             return True

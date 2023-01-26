@@ -68,5 +68,27 @@ guessing that somebody tried to physically cut and paste together two
 listings.
 
 
+### Chapter 10, page 215
+
+AAAARRRGH!
+
+Fairly significant problem with the program as written.
+
+The keyin subroutine ($FD1B) overwrites the Y register. The program as
+written sets the y register as an offset for where to write to the
+screen, and loops for WIDTH steps, incrementing Y (INY) each step.
+
+With keyin inside the loop, Y keeps getting overwritten each time the
+user presses a key, meaning the output is in the wrong place on the
+screen.
+
+The easy fix is to move the JSR keyin line before LDY, outside the
+loopi loop.
+
+The text suggests removing the keyin to see the gremlin loaded all at
+once, but indeed, removing the keyin is necessary to see anything but
+garbage.
+
+
 
 
