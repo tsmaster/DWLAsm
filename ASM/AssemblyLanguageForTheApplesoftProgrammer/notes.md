@@ -49,4 +49,24 @@ Maybe a real assembler would do this automatically, but CHARGOT is
 defined to be $B7, but on line 1080, we JSR to it, which requires 2
 bytes. Maybe make this $00B7?
 
+### Chapter 10, page 210
+
+Nitpick: the program is titled "Program", when it should probably be
+10.6m1.
+
+Also, line 1200 does a BNE loop, which seems like it ought to be based
+off an INX instruction (see Program 10.6)
+
+Also also, the listing steps from 423C to 5E3C in jumps of 400,
+leaving out 5A3C?
+
+Also also also, the listing describes memory location 7003 and 7008,
+but A2 00 is at 7003, which ought to take us to 7005(?!)
+
+I think that I see a space on the page between 7017 and 701D, I'm
+guessing that somebody tried to physically cut and paste together two
+listings.
+
+
+
 
