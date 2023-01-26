@@ -43,6 +43,10 @@ generated machine code looks like it was defined to be $4000.
 In the following paragraph, it talks about inspecting $06, so maybe
 that's what was intended.
 
+### Chapter 9, page 178
 
+Maybe a real assembler would do this automatically, but CHARGOT is
+defined to be $B7, but on line 1080, we JSR to it, which requires 2
+bytes. Maybe make this $00B7?
 
 
