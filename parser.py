@@ -284,6 +284,30 @@ class Assembler():
 
             return True
 
+        elif op == '.HAS':
+            # copy arg into memory, one byte at a time
+            # set high bit
+            assert (not (arg is None))
+
+            assert (not (label is None))
+            assert(type(arg) == type("string"))
+
+            self.store_label(label)
+
+            byte_list = []
+
+            inst_str = ""
+            for c in arg:
+                v = ord(c) | 128
+                byte_list.append(v)
+                inst_str += hex(v) + " "
+
+            self.add_bytes(byte_list, inst_str)
+
+            return True
+
+        
+
         elif op == '.HS':
             # copy arg into memory, hight to low
             # arg is a big hex number
@@ -303,6 +327,28 @@ class Assembler():
                 b = int(digit_pair, 16)
                 byte_list.append(b)
                 inst_str += hex(b) + " "
+
+            self.add_bytes(byte_list, inst_str)
+            return True
+
+        elif op == '.DA':
+            # store a byte in memory
+
+            assert (not (arg is None))
+
+            if label:
+                self.store_label(label)
+
+            byte_list = []
+            inst_str = ""
+
+            if arg[0] == '$':
+                v = int(arg[1:], 16)
+            else:
+                v = int(arg)
+
+            byte_list.append(v)
+            inst_str = hex(v)
 
             self.add_bytes(byte_list, inst_str)
             return True
@@ -732,6 +778,7 @@ class Assembler():
 
             else:
                 print("NO INST")
+                assert(False)
 
             if not op in opcodes.opcode_list:
                 print("unrecognized opcode: ", op)
@@ -965,12 +1012,15 @@ if __name__ == "__main__":
                             asm.add_bytes(byte_list, inst_str)
                     else:
                         print("TOO FAR FOR REL")
+                        assert(False)
 
                 else:
                     print("NO INST")
+                    assert(False)
 
                 if not op in opcodes.opcode_list:
                     print("unrecognized opcode: ", op)
+                    assert(False)
 
     if asm.forward_refs:
         for k, for_ref_list in asm.forward_refs.items():
