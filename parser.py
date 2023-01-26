@@ -408,7 +408,7 @@ class Assembler():
         print("FR BYTES:", byte_list, inst_str)
 
         for byte_index, byte in enumerate(byte_list):
-            idx = for_ref.byte_index + byte_index - 4
+            idx = for_ref.byte_index + byte_index
             print("storing {} at {}".format(byte, idx))
             self.byte_list[idx] = byte
 

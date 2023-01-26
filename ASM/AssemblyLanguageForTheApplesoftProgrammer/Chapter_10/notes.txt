@@ -1,0 +1,24 @@
+Current process:
+
+python3 parser.py prog_10_01.asm
+
+java -jar ../Tools/AppleCommander/AppleCommander-linux64-gtk-1.6.0.jar
+
+  - open the chapter_10.dsk
+  - import prog_10_01.obj into the disk image
+  - set to raw binary (does this matter?)
+  - SAVE
+
+linapple
+
+F3 to load the chapter_10.dsk
+BLOAD PROG_10_01.OUT
+CALL -151
+300G
+
+save screenshot
+
+
+TODO
+write a script to put the .obj onto the .dsk in one step
+
