@@ -312,9 +312,9 @@ class Assembler():
             # copy arg into memory, hight to low
             # arg is a big hex number
             assert (not (arg is None))
-            assert (not (label is None))
 
-            self.store_label(label)
+            if label:
+                self.store_label(label)
             byte_list = []
 
             hex_string = arg
