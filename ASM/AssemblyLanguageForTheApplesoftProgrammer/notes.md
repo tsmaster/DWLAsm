@@ -86,8 +86,8 @@ The easy fix is to move the JSR keyin line before LDY, outside the
 loopi loop.
 
 The text suggests removing the keyin to see the gremlin loaded all at
-once, but indeed, removing the keyin is necessary to see anything but
-garbage.
+once, but indeed, (re)moving the keyin is necessary to see anything
+but garbage.
 
 
 

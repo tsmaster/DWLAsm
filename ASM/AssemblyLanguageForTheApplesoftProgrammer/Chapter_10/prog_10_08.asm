@@ -2,6 +2,19 @@
 ;;; Screen Addressing
 ;;; and THE GREMLIN
 
+;;; NOTE that the original version of this program had the call
+;;; to keyin in the inner loop, this is BROKEN because keyin
+;;; overwrites the Y register, which is used for horizontal
+;;; positioning of where to draw. Thus, each time keyin was called,
+;;; the horizontal (out) position was reset to 0, causing the right
+;;; half of the sprite to overwrite the left half.
+;;;
+;;; The text suggests removing the keyin call from the inner loop to
+;;; see the entire sprite at once, and this works, but the text does
+;;; not indicate that without moving or removing keyin, the plotting
+;;; is incorrect.
+        
+
         .ORG $7000
         .OUT "prog_10_08.obj"
 
@@ -26,18 +39,18 @@ grem:   LDA #$42                ; page part
         JSR hgr2                ; clear screen to black
         LDX #$00                ; init x, get gremlin index
         
-loop0:  LDA #$02                ; the width of the gremlin
+lp_out: LDA #$02                ; the width of the gremlin
         STA width               ; store it
         JSR keyin               ; wait for keypress
         LDY #$00                ; init y, send gremlin index 
-loopi:  LDA datgt,X             ; get top of gremlin
+lp_in:  LDA datgt,X             ; get top of gremlin
         STA (baset),Y             ; send top to screen
         LDA datgb,X             ; get bottom of gremlin
         STA (baseb),Y             ; send bottom to screen
         INX                     ; inc to next 'get' byte
         INY                     ; inc to next 'send' byte
         DEC width               ; keep track of which part
-        BNE loopi               ; moved both sides of gremlin?
+        BNE lp_in               ; moved both sides of gremlin?
         
         CLC                     ; clear carry for add
         LDA baset+1             ; need to add
@@ -47,7 +60,7 @@ loopi:  LDA datgt,X             ; get top of gremlin
         ADC #$04                ;   to bottom of
         STA baseb+1             ;   the gremlin
         DEC height              ; keep track of which line
-        BNE loop0               ; moved 8 slices of gremlin?
+        BNE lp_out              ; moved 8 slices of gremlin?
         
         JSR keyin
         RTS
