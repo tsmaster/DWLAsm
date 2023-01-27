@@ -90,5 +90,8 @@ once, but indeed, (re)moving the keyin is necessary to see anything
 but garbage.
 
 
+### Chapter 11, page 227
 
+line 1490 refers to OLDXL, 1500 to OLDXH, which are not defined. By
+implication they are $03 and $04.
 
