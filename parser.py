@@ -419,7 +419,7 @@ class Assembler():
     def parse_addr(self, term):
         """ returns (None, fr_symbol) or (addr, None)"""
 
-        print("parsing term", term)
+        print("parsing term /{}/".format(term))
         
         if term in self.definitions:
             print("found term {} in definitions {} type {}".format(term, self.definitions[term], type(self.definitions[term])))
@@ -681,6 +681,9 @@ class Assembler():
         while line and line[0].isspace():
             line = line[1:]
 
+        while line and line[-1].isspace():
+            line = line[:-1]
+
         if line[0] == ';':
             # comment
             if label:
@@ -689,7 +692,7 @@ class Assembler():
             else:
                 return None
 
-        print ("line starting with opcode:", line)
+        print ("695: line starting with opcode: /{}/".format(line))
 
         # should have an opcode at this point
 
@@ -877,7 +880,7 @@ class Assembler():
             else:
                 return None
 
-        print ("line starting with opcode:", line)
+        print ("886: line starting with opcode:", line)
 
         # should have an opcode at this point
 
