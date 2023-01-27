@@ -53,7 +53,7 @@ class IndirectAddr:
     def __init__(self, v):
         self.addr = v
         self.mode = AddrMode.INDABS
-        
+
     def __str__(self):
         s = hex(self.addr)[2:]
         return '($'+s+')'
@@ -178,7 +178,7 @@ class XOffsetIndirectZeroPageAddr:
         assert(self.addr < 256)
         return (self.addr,)
 
-    
+
 
 class YOffsetAbsoluteValue:
     def __init__(self, v):
@@ -211,7 +211,7 @@ class YOffsetIndirectZeroPageAddr:
     def bytes(self):
         assert(self.addr < 256)
         return (self.addr,)
-    
+
 
 class ForwardReference():
     def __init__(self, line, byte_index, label, lines_index):
@@ -244,7 +244,7 @@ class Assembler():
 
             assert(addr_fr_sym is None)
             assert(not (addr_loc is None))
-            
+
             self.next_addr = addr_loc.addr
             self.start_addr = addr_loc.addr
             return True
@@ -254,7 +254,8 @@ class Assembler():
             addr_tup = self.parse_addr(arg)
             assert(not addr_tup is None)
             addr_addr, addr_fr_sym = addr_tup
-            
+
+            #print("adding def", label, addr_addr)
             self.definitions[label] = addr_addr
 
             return True
@@ -306,7 +307,7 @@ class Assembler():
 
             return True
 
-        
+
 
         elif op == '.HS':
             # copy arg into memory, hight to low
@@ -320,7 +321,7 @@ class Assembler():
             hex_string = arg
 
             inst_str = ""
-            
+
             while hex_string:
                 digit_pair = hex_string[:2]
                 hex_string = hex_string[2:]
@@ -354,7 +355,7 @@ class Assembler():
 
             self.add_bytes(byte_list, inst_str)
             return True
-            
+
         return False
 
     def add_bytes(self, byte_list, disasm):
@@ -420,7 +421,7 @@ class Assembler():
         """ returns (None, fr_symbol) or (addr, None)"""
 
         print("parsing term /{}/".format(term))
-        
+
         if term in self.definitions:
             print("found term {} in definitions {} type {}".format(term, self.definitions[term], type(self.definitions[term])))
             return (self.definitions[term], None)
@@ -439,6 +440,28 @@ class Assembler():
                 assert(False)
 
         # ghetto parsing by doing one regexp at a time
+
+        y_ind_pat = r"\((\S+)\),Y"
+
+        y_ind_match = re.match(y_ind_pat, term)
+        if y_ind_match:
+            print("found y ind offset")
+
+            print(" group 1: ", y_ind_match.group(1))
+
+            v_parsed, fr_sym = self.parse_addr(y_ind_match.group(1))
+
+            if fr_sym is None:
+                print(" parsed: ", v_parsed)
+
+                if v_parsed.addr < 256:
+                    return (YOffsetIndirectZeroPageAddr(v_parsed.addr), None)
+                else:
+                    print("addr too big for (ZP),Y")
+                    assert(False)
+            else:
+                return (None, fr_sym)
+
         y_off_pat = r"(\S+),Y"
 
         y_off_match = re.match(y_off_pat, term)
@@ -452,10 +475,7 @@ class Assembler():
             if fr_sym is None:
                 print(" parsed: ", v_parsed)
 
-                if v_parsed.addr < 256:
-                    return (YOffsetIndirectZeroPageAddr(v_parsed.addr), None)
-                else:
-                    return (YOffsetAbsoluteValue(v_parsed.addr), None)
+                return (YOffsetAbsoluteValue(v_parsed.addr), None)
             else:
                 return (None, fr_sym)
 
@@ -492,9 +512,6 @@ class Assembler():
                     return (XOffsetAbsoluteValue(v_parsed.addr), None)
             else:
                 return (None, fr_sym)
-                #print("storing forward ref for line", x_off_match.group(1), line)
-                #self.add_forward_ref(x_off_match.group(1), line)
-                #return XOffsetAbsoluteValue(0)
 
         ind_pat = r"\((\S+)\)"
 
@@ -621,7 +638,7 @@ class Assembler():
             arg = arg[:semi_idx]
 
         return arg.strip()
-        
+
 
     def parse_op_and_args(self, line):
         assert(len(line) > 0)
@@ -833,8 +850,8 @@ class Assembler():
 
         else:
             return None
-                        
-                        
+
+
     def tokenize_line(self, line):
         # returns a 3-ple: (label, op, arg)
         # label is a string or None
@@ -892,7 +909,7 @@ class Assembler():
             #print("op and args:", op_and_args)
             return label, op_and_args[0], op_and_args[1]
 
-            
+
 
 if __name__ == "__main__":
     assert(len(sys.argv) == 2)
@@ -904,7 +921,7 @@ if __name__ == "__main__":
     jumps = ['JMP' , 'JSR']
     branches = ['BEQ', 'BNE', 'BCC', 'BCS',
                 'BMI', 'BPL', 'BVC', 'BVS']
-    
+
 
     with open(filename) as t:
         for line in t.readlines():
@@ -916,12 +933,12 @@ if __name__ == "__main__":
                 label, op, arg = tokens
 
                 arg = asm.trim_arg(arg)
-                
+
                 if asm.do_pseudo_opcode(label, op, arg):
                     print("processed pseudo opcode", label, op, arg)
                     continue
 
-            
+
             toks = asm.parse_line(line)
             print("parsed tokens:", toks)
 
@@ -958,7 +975,7 @@ if __name__ == "__main__":
 
                     if math_res:
                         arg_addr = math_res
-                    else:                    
+                    else:
                         print("UNDEFINED LABEL FOR", op)
                         if op in jumps:
                             placeholder_arg = AbsoluteAddr(0)
