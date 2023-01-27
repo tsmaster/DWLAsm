@@ -356,6 +356,44 @@ class Assembler():
             self.add_bytes(byte_list, inst_str)
             return True
 
+        elif op == '.BS':
+            # see https://www.txbobsc.com/scsc/scassembler/SCMacroAssembler20.html#assembler
+            # search for .BS with Fill Byte
+
+            # if there is no comma, allocate arg bytes initialized to 0
+            # if there is a comma, split into arg,val, initialize arg bytes to val
+
+            assert(not(arg is None))
+
+            if label:
+                self.store_label(label)
+
+            val = 0
+            countstr = arg
+            if ',' in arg:
+                countstr,valstr = arg.split(',')
+                if valstr[0] == '$':
+                    val = int(valstr[1:], 16)
+                else:
+                    val = int(valstr)
+                
+            byte_list = []
+            hex_string = arg
+            inst_str = ""
+
+            if countstr[0] == '$':
+                countval = int(countstr[1:], 16)
+            else:
+                countval = int(countstr)
+
+            for i in range(countval):
+                byte_list.append(val)
+
+            inst_str += hex(val) + " * " + str(countval)
+
+            self.add_bytes(byte_list, inst_str)
+            return True
+
         return False
 
     def add_bytes(self, byte_list, disasm):

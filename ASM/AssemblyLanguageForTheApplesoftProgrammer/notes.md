@@ -95,3 +95,10 @@ but garbage.
 line 1490 refers to OLDXL, 1500 to OLDXH, which are not defined. By
 implication they are $03 and $04.
 
+
+### Chapter 11, page 243
+
+We are given a number of modifications to upgrade program 11.4 to
+11.5, including references to BASL, which is referenced in earlier
+text. In case you weren't reading carefully, it's $26
+
