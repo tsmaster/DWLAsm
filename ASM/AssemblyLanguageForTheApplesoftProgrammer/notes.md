@@ -102,3 +102,6 @@ We are given a number of modifications to upgrade program 11.4 to
 11.5, including references to BASL, which is referenced in earlier
 text. In case you weren't reading carefully, it's $26
 
+### Chapter 12, page 291
+
+line 5170 has a 80 in the 5th byte, probably should be 50
