@@ -51,7 +51,7 @@
  520  L = 0
  530  C = 0
  540  PC = 1
- 550  FOR R = L + 1 TO N
+ 550  FOR R = L + 1 TO N - 1
  560  IF (F(L) <  > F(R)) GOTO 590
  570  C = C + 1
  580  NEXT R
@@ -59,8 +59,8 @@
  600  L = R
  610  C = 1
  620  PC = PC + 1
- 625  IF R = N GOTO 640
+ 625  IF L+1 >= N GOTO 640
  630  GOTO 550
- 640  PRINT PC;".  ";F(L);"  ";C
- 650  END 
+ 640  END
+
 
