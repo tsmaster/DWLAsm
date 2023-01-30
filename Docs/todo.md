@@ -41,3 +41,11 @@ indicate this, as well.
 include directive
 ----------------------------------------
 Allow programmers to include files
+
+"whole buffet" / alphabet / rainbow program
+----------------------------------------
+What if I wrote a program that hit every opcode? There's fewer than 256
+instructions, this can't be that hard. The code wouldn't have to do 
+anything useful, it'd just have to be able to cover the full instruction 
+space.
+
