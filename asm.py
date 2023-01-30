@@ -4,6 +4,7 @@
 
 import sys
 import re
+import argparse
 
 import opcodes
 from addrmode import AddrMode
@@ -408,9 +409,13 @@ class Assembler():
         self.lines.append((self.next_addr, disasm))
         self.next_addr += len(byte_list)
 
-    def print_listing(self):
+    def make_listing(self):
+        list_str = ""
+        
         for addr, disasm in self.lines:
-            print(hex(addr), disasm)
+            list_str += "{}- {}\n".format(hex(addr), disasm)
+
+        return list_str
 
     def save_obj(self, filename=None):
         if not filename:
@@ -959,7 +964,11 @@ class Assembler():
 if __name__ == "__main__":
     assert(len(sys.argv) == 2)
 
-    filename = sys.argv[1]
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument("asmfile")
+    args = argparser.parse_args()
+    
+    filename = args.asmfile
 
     asm = Assembler()
 
@@ -1097,5 +1106,6 @@ if __name__ == "__main__":
                 asm.fix_forward_ref(fr)
 
 
-    asm.print_listing()
+    listing = asm.make_listing()
+    print(listing)
     asm.save_obj()
