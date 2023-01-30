@@ -975,9 +975,16 @@ class Assembler():
 if __name__ == "__main__":
     #assert(len(sys.argv) == 2)
 
-    argparser = argparse.ArgumentParser()
-    argparser.add_argument("asmfile")
-    argparser.add_argument("-l", "--list", type=argparse.FileType('w'))
+    argparser = argparse.ArgumentParser(
+        prog = "asm.py",
+        description = "DWLasm, an assembler to cross-build Apple II assembly-language software",
+    )
+    argparser.add_argument("asmfile",
+                           help="name of file containing ASM code")
+    argparser.add_argument("-l", "--list", type=argparse.FileType('w'),
+                           help="filename to output program listing to")
+    argparser.add_argument("-o", "--out", type=argparse.FileType('w'),
+                           help="filename to output program output to")
     args = argparser.parse_args()
 
     filename = args.asmfile
