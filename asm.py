@@ -384,7 +384,7 @@ class Assembler():
                     val = int(valstr[1:], 16)
                 else:
                     val = int(valstr)
-                
+
             byte_list = []
             hex_string = arg
             inst_str = ""
@@ -411,11 +411,22 @@ class Assembler():
 
     def make_listing(self):
         list_str = ""
+        list_str += "Filename: {}\n".format(self.filename)
+        list_str += "Start addr: {}\n".format(hex(self.start_addr))
+
+        proglen = len(self.byte_list) - 4
         
+        list_str += "Len: {} ({}d)\n".format(hex(proglen), proglen)
+
         for addr, disasm in self.lines:
             list_str += "{}- {}\n".format(hex(addr), disasm)
 
         return list_str
+
+    def save_listing(self, write_file_obj):
+        list_str = self.make_listing()
+
+        write_file_obj.write(list_str)
 
     def save_obj(self, filename=None):
         if not filename:
@@ -962,12 +973,13 @@ class Assembler():
 
 
 if __name__ == "__main__":
-    assert(len(sys.argv) == 2)
+    #assert(len(sys.argv) == 2)
 
     argparser = argparse.ArgumentParser()
     argparser.add_argument("asmfile")
+    argparser.add_argument("-l", "--list", type=argparse.FileType('w'))
     args = argparser.parse_args()
-    
+
     filename = args.asmfile
 
     asm = Assembler()
@@ -1022,28 +1034,6 @@ if __name__ == "__main__":
                         inst_data = opcodes.lookup(op, placeholder_arg)
 
                     arg_addr = placeholder_arg
-
-                """
-                if type(arg_addr) == type("string"):
-                    math_res = asm.do_inline_math(arg_addr)
-
-                    if math_res:
-                        arg_addr = math_res
-                    else:
-                        print("UNDEFINED LABEL FOR", op)
-                        if op in jumps:
-                            placeholder_arg = AbsoluteAddr(0)
-                            inst_data = opcodes.lookup(op, placeholder_arg)
-                        elif op in branches:
-                            placeholder_arg = RelativeAddr(0)
-                            inst_data = opcodes.lookup(op, placeholder_arg)
-                        else:
-                            print("unexpected opcode", op)
-                            assert(False)
-
-                        #asm.add_forward_ref(arg, line)
-                        arg_addr = placeholder_arg
-                """
 
                 print("looking up op {} arg {}".format(op, arg_addr))
                 inst_data = opcodes.lookup(op, arg_addr)
@@ -1108,4 +1098,6 @@ if __name__ == "__main__":
 
     listing = asm.make_listing()
     print(listing)
+    if args.list:
+        asm.save_listing(args.list)
     asm.save_obj()
