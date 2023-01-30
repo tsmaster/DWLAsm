@@ -8,6 +8,15 @@ import re
 import opcodes
 from addrmode import AddrMode
 
+def hex2(b):
+    assert (b >= 0)
+    assert(type(b) == type(1))
+
+    hs = hex(b)[2:]
+    if len(hs) == 1:
+        hs = '0'+hs
+
+    return hs.upper()
 
 def is_numeric_address(term):
     vals = '$0123456789ABCDEF'
@@ -39,7 +48,7 @@ class AbsoluteAddr:
         self.mode = AddrMode.ABS
 
     def __str__(self):
-        s = hex(self.addr)[2:]
+        s = hex2(self.addr)
         return '$'+s
 
     def __repr__(self):
@@ -55,7 +64,7 @@ class IndirectAddr:
         self.mode = AddrMode.INDABS
 
     def __str__(self):
-        s = hex(self.addr)[2:]
+        s = hex2(self.addr)
         return '($'+s+')'
 
     def __repr__(self):
@@ -72,7 +81,7 @@ class RelativeAddr:
         self.mode = AddrMode.REL
 
     def __str__(self):
-        s = hex(self.rel_addr)[2:]
+        s = hex2(self.rel_addr)
         return '$'+s
 
     def __repr__(self):
@@ -88,7 +97,7 @@ class ZeroPageAddr:
         self.mode = AddrMode.ZP
 
     def __str__(self):
-        s = hex(self.addr)[2:]
+        s = hex2(self.addr)
         return '$'+s
 
     def __repr__(self):
@@ -104,7 +113,7 @@ class ImmediateWordValue:
         self.mode = AddrMode.IMM
 
     def __str__(self):
-        s = hex(self.addr)[2:]
+        s = hex2(self.addr)
         return '#$'+s
 
     def __repr__(self):
@@ -120,7 +129,7 @@ class ImmediateByteValue:
         self.mode = AddrMode.IMM
 
     def __str__(self):
-        s = hex(self.addr)[2:]
+        s = hex2(self.addr)
         return '#$'+s
 
     def __repr__(self):
@@ -136,7 +145,7 @@ class XOffsetAbsoluteValue:
         self.mode = AddrMode.ABSX
 
     def __str__(self):
-        s = hex(self.addr)[2:]
+        s = hex2(self.addr)
         return '#$'+s+",X"
 
     def __repr__(self):
@@ -152,7 +161,7 @@ class XOffsetZeroPageAddr:
         self.mode = AddrMode.ZPX
 
     def __str__(self):
-        s = hex(self.addr)[2:]
+        s = hex2(self.addr)
         return '$'+s+",X"
 
     def __repr__(self):
@@ -168,7 +177,7 @@ class XOffsetIndirectZeroPageAddr:
         self.mode = AddrMode.INDZPX
 
     def __str__(self):
-        s = hex(self.addr)[2:]
+        s = hex2(self.addr)
         return '($'+s+",X)"
 
     def __repr__(self):
@@ -186,7 +195,7 @@ class YOffsetAbsoluteValue:
         self.mode = AddrMode.ABSY
 
     def __str__(self):
-        s = hex(self.addr)[2:]
+        s = hex2(self.addr)
         return '#$'+s+",Y"
 
     def __repr__(self):
@@ -202,7 +211,7 @@ class YOffsetIndirectZeroPageAddr:
         self.mode = AddrMode.INDZPY
 
     def __str__(self):
-        s = hex(self.addr)[2:]
+        s = hex2(self.addr)
         return '($'+s+"),Y"
 
     def __repr__(self):
@@ -279,7 +288,7 @@ class Assembler():
             inst_str = ""
             for c in arg:
                 byte_list.append(ord(c))
-                inst_str += hex(ord(c)) + " "
+                inst_str += hex2(ord(c)) + " "
 
             self.add_bytes(byte_list, inst_str)
 
@@ -301,13 +310,11 @@ class Assembler():
             for c in arg:
                 v = ord(c) | 128
                 byte_list.append(v)
-                inst_str += hex(v) + " "
+                inst_str += hex2(v) + " "
 
             self.add_bytes(byte_list, inst_str)
 
             return True
-
-
 
         elif op == '.HS':
             # copy arg into memory, hight to low
@@ -327,7 +334,7 @@ class Assembler():
                 hex_string = hex_string[2:]
                 b = int(digit_pair, 16)
                 byte_list.append(b)
-                inst_str += hex(b) + " "
+                inst_str += hex2(b) + " "
 
             self.add_bytes(byte_list, inst_str)
             return True
@@ -351,7 +358,7 @@ class Assembler():
                     v = int(byte_str)
 
                 byte_list.append(v)
-                inst_str += hex(v) + " "
+                inst_str += hex2(v) + " "
 
             self.add_bytes(byte_list, inst_str)
             return True
@@ -389,7 +396,7 @@ class Assembler():
             for i in range(countval):
                 byte_list.append(val)
 
-            inst_str += hex(val) + " * " + str(countval)
+            inst_str += hex2(val) + " * " + str(countval)
 
             self.add_bytes(byte_list, inst_str)
             return True
@@ -789,12 +796,12 @@ class Assembler():
             inst_str = ""
 
             if inst_data:
-                inst_str += hex(inst_data)[2:] + " "
+                inst_str += hex2(inst_data) + " "
 
                 byte_list = [inst_data]
                 if arg_addr:
                     for a in arg_addr.bytes():
-                        inst_str += hex(a)[2:] + " "
+                        inst_str += hex2(a) + " "
                         byte_list.append(a)
 
                 print("INST:", inst_str)
@@ -819,12 +826,12 @@ class Assembler():
                     inst_data = opcodes.lookup(op, rel_arg)
 
                     if not (inst_data is None):
-                        inst_str += hex(inst_data)[2:] + " "
+                        inst_str += hex2(inst_data) + " "
 
                         byte_list = [inst_data]
                         if rel_arg:
                             for a in rel_arg.bytes():
-                                inst_str += hex(a)[2:] + " "
+                                inst_str += hex2(a) + " "
                                 byte_list.append(a)
                         print("RINST:", inst_str)
                         return byte_list, inst_str
@@ -1034,12 +1041,12 @@ if __name__ == "__main__":
 
                 inst_str = ""
                 if not (inst_data is None):
-                    inst_str += hex(inst_data)[2:] + " "
+                    inst_str += hex2(inst_data) + " "
 
                     byte_list = [inst_data]
                     if arg_addr:
                         for a in arg_addr.bytes():
-                            inst_str += hex(a)[2:] + " "
+                            inst_str += hex2(a) + " "
                             byte_list.append(a)
 
                     print("INST:", inst_str)
@@ -1059,12 +1066,12 @@ if __name__ == "__main__":
                         inst_data = opcodes.lookup(op, rel_arg)
 
                         if inst_data:
-                            inst_str += hex(inst_data)[2:] + " "
+                            inst_str += hex2(inst_data) + " "
 
                             byte_list = [inst_data]
                             if rel_arg:
                                 for a in rel_arg.bytes():
-                                    inst_str += hex(a)[2:] + " "
+                                    inst_str += hex2(a) + " "
                                     byte_list.append(a)
                             print("RINST:", inst_str)
                             if label:
