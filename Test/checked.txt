@@ -1,0 +1,35 @@
+checked listing files
+
+Chapter 1
+----------
+prog_1_1
+prog_1_2
+  missing 1.2a??
+prog_1_3
+
+Chapter 2
+----------
+pal1
+pal2 (note DEY missing from book)
+prog_2_3
+prog_2_4
+prog_2_5
+prog_2_6
+prog_2_7
+prog_2_8
+prog_2_10
+
+Chapter 3
+----------
+prog_3_01
+prog_3_02
+prog_3_03
+prog_3_04
+prog_3_05
+prog_3_06
+prog_3_07
+prog_3_08
+prog_3_09
+prog_3_10
+prog_3_10m1
+prog_3_11
