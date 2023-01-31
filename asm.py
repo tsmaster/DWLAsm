@@ -411,7 +411,8 @@ class Assembler():
 
     def make_listing(self):
         list_str = ""
-        list_str += "Filename: {}\n".format(self.filename)
+        if self.filename:
+            list_str += "Filename: {}\n".format(self.filename)
         list_str += "Start addr: {}\n".format(hex(self.start_addr))
 
         proglen = len(self.byte_list) - 4
