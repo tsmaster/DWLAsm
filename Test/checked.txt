@@ -33,3 +33,16 @@ prog_3_09
 prog_3_10
 prog_3_10m1
 prog_3_11
+
+Chapter 4
+----------
+prog_4_01
+prog_4_02
+(prog_4_02m1 not supported by my assembler)
+prog_4_03
+prog_4_04
+prog_4_05
+prog_4_06
+prog_4_07
+prog_4_08
+
