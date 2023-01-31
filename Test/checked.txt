@@ -46,3 +46,11 @@ prog_4_06
 prog_4_07
 prog_4_08
 
+Chapter 5
+----------
+prog_5_01
+prog_5_01m2
+prog_5_02
+prog_5_02m1
+prog_5_03
+prog_5_03m1
