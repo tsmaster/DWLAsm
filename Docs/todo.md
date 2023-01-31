@@ -6,7 +6,7 @@ command-line arguments
 ----------------------------------------
 
 options for
- - out filename (overwrites .OUT value, if any)
+- include directory(s)
 
 
 workflow / quality of life
@@ -37,6 +37,8 @@ show a completed checklist, showing each ASM file by name, collected
 into chapters. For each file, indicate if it assembles w/o errors, and
 if it matches "golden" listing files. If no golden listing file exists,
 indicate this, as well.
+
+verify that the OBJ matches the listing
 
 include directive
 ----------------------------------------

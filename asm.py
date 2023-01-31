@@ -428,22 +428,25 @@ class Assembler():
 
         write_file_obj.write(list_str)
 
-    def save_obj(self, filename=None):
-        if not filename:
-            filename = self.filename
+    def save_obj(self, fileobj):
+        if not fileobj:
+            assert(self.filename)
+            fileobj = open(self.filename, "wb")
+            print("saving to", self.filename)
+        else:
+            print("saving to file obj", fileobj)
 
-        assert(filename)
+        assert(fileobj)
 
         proglen = len(self.byte_list) - 4
-        print("saving {} bytes to {}".format(proglen, filename))
+        print("saving {} bytes".format(proglen))
         ba = bytearray(self.byte_list)
         ba[0] = self.start_addr % 256
         ba[1] = self.start_addr >> 8
         ba[2] = proglen % 256
         ba[3] = proglen >> 8
 
-        with open(filename, "wb") as f:
-            f.write(ba)
+        fileobj.write(ba)
 
     def store_label(self, label):
         # store the label value in our definitions. Is that OK?
@@ -983,7 +986,7 @@ if __name__ == "__main__":
                            help="name of file containing ASM code")
     argparser.add_argument("-l", "--list", type=argparse.FileType('w'),
                            help="filename to output program listing to")
-    argparser.add_argument("-o", "--out", type=argparse.FileType('w'),
+    argparser.add_argument("-o", "--out", type=argparse.FileType('wb'),
                            help="filename to output program output to")
     args = argparser.parse_args()
 
@@ -1107,4 +1110,4 @@ if __name__ == "__main__":
     print(listing)
     if args.list:
         asm.save_listing(args.list)
-    asm.save_obj()
+    asm.save_obj(args.out)

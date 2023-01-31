@@ -1,6 +1,7 @@
         ;; program 1.1 The Apple Bell
 
-        ORG $FBE2
+        .ORG $FBE2
+        .OUT "prog_01_01.obj"
 
         LDY #$C0
 loop:   LDA #$0C
