@@ -1,0 +1,10 @@
+Filename: prog_8_16.obj
+Start addr: 0x800
+Len: 0xf (15d)
+0x800- A0 E9 
+0x802- A9 32 
+0x804- 20 F9 EA 
+0x807- BA 
+0x808- 8E 00 40 
+0x80b- 20 10 DE 
+0x80e- 00 

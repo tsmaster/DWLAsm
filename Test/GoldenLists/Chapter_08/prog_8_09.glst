@@ -1,0 +1,11 @@
+Filename: prog_8_09.obj
+Start addr: 0x300
+Len: 0x12 (18d)
+0x300- A0 20 
+0x302- A9 02 
+0x304- 20 F9 EA 
+0x307- 20 8D EE 
+0x30a- A0 20 
+0x30c- A2 09 
+0x30e- 20 2B EB 
+0x311- 60 

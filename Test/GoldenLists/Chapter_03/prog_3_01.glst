@@ -1,0 +1,8 @@
+Filename: prog_3_01.obj
+Start addr: 0x800
+Len: 0x7 (7d)
+0x800- 18 
+0x801- F8 
+0x802- A9 86 
+0x804- 69 13 
+0x806- 00 

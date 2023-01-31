@@ -1,0 +1,11 @@
+Filename: prog_10_06.obj
+Start addr: 0x7000
+Len: 0x12 (18d)
+0x7000- 20 D8 F3 
+0x7003- A2 00 
+0x7005- 8E 3C 42 
+0x7008- 20 1B FD 
+0x700b- 20 D8 F3 
+0x700e- E8 
+0x700f- D0 F4 
+0x7011- 60 

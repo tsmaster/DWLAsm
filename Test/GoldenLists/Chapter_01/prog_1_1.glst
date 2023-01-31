@@ -1,0 +1,10 @@
+Filename: prog_01_01.obj
+Start addr: 0xfbe2
+Len: 0xe (14d)
+0xfbe2- A0 C0 
+0xfbe4- A9 0C 
+0xfbe6- 20 A8 FC 
+0xfbe9- AD 30 C0 
+0xfbec- 88 
+0xfbed- D0 F5 
+0xfbef- 60 

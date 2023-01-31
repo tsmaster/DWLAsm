@@ -1,6 +1,6 @@
 import os
 import subprocess
-
+import shutil
 
 filenames = """
 Chapter_01/prog_1_1.asm
@@ -109,17 +109,36 @@ for f in filenames.split():
     if not os.path.exists(rel_path):
         print("path does not exist")
         assert(False)
-
         
-    completed_process = subprocess.run(["python3", "../asm.py", "--out", "test.obj", rel_path])
+    completed_process = subprocess.run(["python3", "../asm.py", "--list", "test.list", "--out", "test.obj", rel_path])
+
+    base, ext = os.path.splitext(f)
+    golden_listing_filename = os.path.join("./GoldenLists/", base + ".glst")
+
+    #print("gold:", golden_listing_filename)
+
+    dirs = os.path.split(golden_listing_filename)
+
+    if not os.path.exists(dirs[0]):
+        os.makedirs(dirs[0])
 
     results[f] = completed_process.returncode
 
     if completed_process.returncode != 0:
         non_zero_filenames.append(f)
 
+    if ((os.path.exists("test.list")) and
+        (not os.path.exists(golden_listing_filename))):
+        print("copying test.list to", golden_listing_filename)
+        shutil.copyfile("test.list", golden_listing_filename)
+    else:
+        print ("TODO: compare test.list and", golden_listing_filename)
+
     if os.path.exists("test.obj"):
         os.unlink("test.obj")
+
+    if os.path.exists("test.list"):
+        os.unlink("test.list")
 
 keys = list(results.keys())
 keys.sort()

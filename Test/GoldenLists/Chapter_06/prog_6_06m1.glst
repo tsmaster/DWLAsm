@@ -1,0 +1,8 @@
+Filename: prog_6_06m1.obj
+Start addr: 0x800
+Len: 0xc (12d)
+0x800- A9 51 
+0x802- 8D F8 3F 
+0x805- 4E F8 3F 
+0x808- 4E F8 3F 
+0x80b- 00 

@@ -1,0 +1,10 @@
+Filename: prog_2_5.obj
+Start addr: 0x300
+Len: 0xe (14d)
+0x300- A0 C0 
+0x302- A9 0C 
+0x304- 20 A8 FC 
+0x307- AD 30 C0 
+0x30a- 88 
+0x30b- D0 F5 
+0x30d- 60 

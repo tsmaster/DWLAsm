@@ -1,0 +1,8 @@
+Filename: prog_8_14.obj
+Start addr: 0x800
+Len: 0xb (11d)
+0x800- A0 ED 
+0x802- A9 14 
+0x804- 20 F9 EA 
+0x807- 20 F2 EB 
+0x80a- 00 

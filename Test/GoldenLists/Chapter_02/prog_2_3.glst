@@ -1,0 +1,5 @@
+Filename: prog_2_3.obj
+Start addr: 0x300
+Len: 0x6 (6d)
+0x300- AD 30 C0 
+0x303- 4C 00 03 

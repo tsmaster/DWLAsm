@@ -1,0 +1,11 @@
+Filename: prog_10_05.obj
+Start addr: 0x300
+Len: 0x11 (17d)
+0x300- 20 D8 F3 
+0x303- A2 00 
+0x305- 20 1B FD 
+0x308- 9D 00 40 
+0x30b- E8 
+0x30c- E0 27 
+0x30e- D0 F5 
+0x310- 60 

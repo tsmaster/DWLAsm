@@ -1,0 +1,6 @@
+Filename: prog_6_03.obj
+Start addr: 0x800
+Len: 0x5 (5d)
+0x800- A9 33 
+0x802- 09 BB 
+0x804- 00 

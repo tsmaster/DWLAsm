@@ -1,0 +1,9 @@
+Filename: prog_5_01.obj
+Start addr: 0x800
+Len: 0xb (11d)
+0x800- A9 11 
+0x802- A0 00 
+0x804- 99 00 40 
+0x807- C8 
+0x808- D0 FA 
+0x80a- 00 

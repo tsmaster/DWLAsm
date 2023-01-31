@@ -1,0 +1,9 @@
+Filename: prog_2_6.obj
+Start addr: 0x300
+Len: 0xb (11d)
+0x300- AD 30 C0 
+0x303- A2 FF 
+0x305- CA 
+0x306- D0 FD 
+0x308- F0 F6 
+0x30a- 60 

@@ -1,0 +1,8 @@
+Filename: prog_6_04.obj
+Start addr: 0x800
+Len: 0x9 (9d)
+0x800- A9 BB 
+0x802- 85 07 
+0x804- A9 77 
+0x806- 24 07 
+0x808- 00 

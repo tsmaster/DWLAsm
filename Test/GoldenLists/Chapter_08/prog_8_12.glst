@@ -1,0 +1,7 @@
+Filename: prog_8_12.obj
+Start addr: 0x800
+Len: 0x8 (8d)
+0x800- A9 FF 
+0x802- A0 FB 
+0x804- 20 F2 E2 
+0x807- 00 

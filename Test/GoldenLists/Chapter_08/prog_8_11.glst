@@ -1,0 +1,10 @@
+Filename: prog_8_11.obj
+Start addr: 0x300
+Len: 0x11 (17d)
+0x300- 20 7B DD 
+0x303- 20 09 EF 
+0x306- 20 BE DE 
+0x309- 20 E3 DF 
+0x30c- AA 
+0x30d- 20 2B EB 
+0x310- 60 
