@@ -111,21 +111,21 @@ line 5170 has a 80 in the 5th byte, probably should be 50
 
 The histogram algorithm is a mess. I have rewritten it here:
 
- 500  PRINT 
- 510  PRINT "THE FREQUENCY DISTRIBUTION"
- 520  L = 0
- 530  C = 0
- 540  PC = 1
- 550  FOR R = L + 1 TO N
- 560  IF (F(L) <  > F(R)) GOTO 590
- 570  C = C + 1
- 580  NEXT R
- 590  PRINT PC;".  ";F(L);"  ";C
- 600  L = R
- 610  C = 1
- 620  PC = PC + 1
- 625  IF R = N GOTO 640
- 630  GOTO 550
- 640  PRINT PC;".  ";F(L);"  ";C
- 650  END 
+    500  PRINT 
+    510  PRINT "THE FREQUENCY DISTRIBUTION"
+    520  L = 0
+    530  C = 0
+    540  PC = 1
+    550  FOR R = L + 1 TO N
+    560  IF (F(L) <  > F(R)) GOTO 590
+    570  C = C + 1
+    580  NEXT R
+    590  PRINT PC;".  ";F(L);"  ";C
+    600  L = R
+    610  C = 1
+    620  PC = PC + 1
+    625  IF R = N GOTO 640
+    630  GOTO 550
+    640  PRINT PC;".  ";F(L);"  ";C
+    650  END 
 
