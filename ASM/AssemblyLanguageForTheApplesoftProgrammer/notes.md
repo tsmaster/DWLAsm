@@ -129,3 +129,7 @@ The histogram algorithm is a mess. I have rewritten it here:
     640  PRINT PC;".  ";F(L);"  ";C
     650  END 
 
+### Chapter 13, page 313
+
+Line 1870 and 1880 both STA ELEML - why?
+

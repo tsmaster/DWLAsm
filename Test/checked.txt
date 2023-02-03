@@ -54,3 +54,80 @@ prog_5_02
 prog_5_02m1
 prog_5_03
 prog_5_03m1
+
+Chapter 6
+----------
+prog_6_01
+prog_6_02
+prog_6_03
+prog_6_04
+prog_6_05
+prog_6_05m1
+prog_6_05m2
+prog_6_05m3
+prog_6_06
+prog_6_06m1
+prog_6_07
+prog_6_07m1
+prog_6_08
+prog_6_08m1
+
+Chapter 7
+----------
+prog_7_05
+prog_7_07
+
+Chapter 8
+----------
+prog_8_01
+prog_8_02
+prog_8_03
+prog_8_06
+prog_8_07
+prog_8_08
+prog_8_09
+prog_8_10
+prog_8_11
+prog_8_12
+prog_8_13
+prog_8_14
+prog_8_15
+prog_8_16
+prog_8_17
+prog_8_19
+prog_8_20
+
+Chapter 9
+----------
+prog_9_01
+
+Chapter 10
+----------
+prog_10_01
+prog_10_02
+prog_10_03
+prog_10_04
+prog_10_05
+prog_10_06
+prog_10_06m1 (note book is missing INX)
+prog_10_07
+prog_10_08 (note book has keyin bug, which trashes Y register)
+
+Chapter 11
+----------
+prog_11_01
+prog_11_02 (oldXH, oldXL are missing from book listing)
+prog_11_03
+prog_11_04
+(prog_11_05 is not in the book, only deltas from 10.4)
+prog_11_06
+
+Chapter 12
+----------
+prog_12_01
+
+Chapter 13
+----------
+prog_13_01
+prog_13_02
+

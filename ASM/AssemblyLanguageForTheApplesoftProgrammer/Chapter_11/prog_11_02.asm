@@ -59,7 +59,7 @@ erase:  LDA #$00
         LDA ypos                ; vertical
         LDX oldxl               ; horiz low
         LDY oldxh               ; horiz high
-        JSR hplot               ; draw the dot
+        JSR hplot               ; draw the dot at x=low, y=high
         RTS
 
 ;;; increment position

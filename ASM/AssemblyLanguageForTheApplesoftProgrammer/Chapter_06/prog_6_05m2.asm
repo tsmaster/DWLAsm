@@ -4,7 +4,7 @@
         .ORG $800
         .OUT "prog_6_05m2.obj"
 
-asl:    LDA #$43
+asl:    LDA #$03
         ASL
         ASL
         ASL
